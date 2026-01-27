@@ -175,12 +175,13 @@ export default function RegisterPage() {
 
                         {/* Agency Field */}
                         <div>
-                            <label className="block text-[10px] text-green-700 mb-1 tracking-wider">
+                            <label htmlFor="agency" className="block text-[10px] text-green-700 mb-1 tracking-wider">
                                 AGENCY
                             </label>
                             <div className="relative">
                                 <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-700" />
                                 <select
+                                    id="agency"
                                     value={formData.agency}
                                     onChange={(e) => updateField('agency', e.target.value)}
                                     required

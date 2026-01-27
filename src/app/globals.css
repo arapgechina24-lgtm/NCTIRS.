@@ -173,3 +173,53 @@ body::after {
 .animate-glitch {
   animation: glitch-pulse 0.2s ease-in-out infinite;
 }
+
+/* SOVEREIGN MODE LOCKDOWN STYLES */
+/* This shifts the entire color spectrum from Green (120deg) to Red (0deg/360deg) */
+body.theme-sovereign-lockdown main {
+  filter: hue-rotate(240deg) contrast(1.2) saturate(1.2);
+}
+
+/* Exceptions: Elements that should behave differently or stay as is */
+body.theme-sovereign-lockdown .map-tiles {
+  /* Adjust map to be blood red */
+  filter: grayscale(100%) sepia(100%) hue-rotate(-50deg) saturate(5) brightness(0.6);
+}
+
+/* The Lock-Down Banner */
+body.theme-sovereign-lockdown::before {
+  content: "⚠ AIR-GAP ACTIVE: EXTERNAL TRAFFIC SEVERED ⚠";
+  position: fixed;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid red;
+  color: red;
+  font-family: 'Geist Mono', monospace;
+  font-size: 4rem;
+  font-weight: 900;
+  text-align: center;
+  padding: 2rem;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.3;
+  animation: pulse-warning 2s infinite;
+  white-space: nowrap;
+  letter-spacing: 0.5rem;
+  text-shadow: 0 0 20px red;
+}
+
+@keyframes pulse-warning {
+
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: translateX(-50%) scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: translateX(-50%) scale(1.05);
+  }
+}
