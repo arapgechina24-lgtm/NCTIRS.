@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import GlobalStatusBanner from '@/components/GlobalStatusBanner'
+import GlobalStatusBanner from '@/components/layout/GlobalStatusBanner'
 
 describe('GlobalStatusBanner', () => {
     it('should render without crashing', () => {

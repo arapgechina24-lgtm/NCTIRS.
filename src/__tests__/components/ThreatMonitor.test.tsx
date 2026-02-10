@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render } from '@testing-library/react'
-import { ThreatMonitor } from '@/components/ThreatMonitor'
+import { ThreatMonitor } from '@/components/threat/ThreatMonitor'
 import { SecurityIncident, CyberThreat } from '@/lib/mockData'
 
 // Minimal mock data
