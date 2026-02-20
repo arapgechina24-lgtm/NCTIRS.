@@ -54,24 +54,29 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Update last login
-        await prisma.user.update({
-            where: { id: user.id },
-            data: { lastLogin: new Date() }
-        })
+        // Update last login (wrapped for read-only filesystem compatibility)
+        try {
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { lastLogin: new Date() }
+            })
 
-        // Create audit log
-        await prisma.auditLog.create({
-            data: {
-                action: 'LOGIN',
-                resource: 'auth',
-                userId: user.id,
-                details: JSON.stringify({ email: user.email }),
-                ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
-                userAgent: request.headers.get('user-agent') || 'unknown',
-                hash: createHash('sha256').update(`LOGIN-${user.id}-${Date.now()}`).digest('hex'),
-            }
-        })
+            // Create audit log
+            await prisma.auditLog.create({
+                data: {
+                    action: 'LOGIN',
+                    resource: 'auth',
+                    userId: user.id,
+                    details: JSON.stringify({ email: user.email }),
+                    ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+                    userAgent: request.headers.get('user-agent') || 'unknown',
+                    hash: createHash('sha256').update(`LOGIN-${user.id}-${Date.now()}`).digest('hex'),
+                }
+            })
+        } catch (dbError) {
+            // Ignore DB write errors in demo/read-only mode
+            console.warn('[API] Login DB write failed (likely read-only fs):', dbError)
+        }
 
         // Return user data (without password)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars

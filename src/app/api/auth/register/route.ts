@@ -37,28 +37,37 @@ export async function POST(request: NextRequest) {
         // Map role to clearance level
         const clearanceLevels: Record<string, number> = { L1: 1, L2: 2, L3: 3, L4: 4 }
 
-        // Create user
-        const user = await prisma.user.create({
-            data: {
-                email,
-                password: hashedPassword,
-                name: name || email.split('@')[0],
-                role: userRole,
-                agency: agency || 'NIS',
-                department: department || 'Cyber Division',
-                clearanceLevel: clearanceLevels[userRole] || 1,
-            },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-                role: true,
-                agency: true,
-                department: true,
-                clearanceLevel: true,
-                createdAt: true,
-            }
-        })
+        // Create user (handle read-only filesystem)
+        let user;
+        try {
+            user = await prisma.user.create({
+                data: {
+                    email,
+                    password: hashedPassword,
+                    name: name || email.split('@')[0],
+                    role: userRole,
+                    agency: agency || 'NIS',
+                    department: department || 'Cyber Division',
+                    clearanceLevel: clearanceLevels[userRole] || 1,
+                },
+                select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    role: true,
+                    agency: true,
+                    department: true,
+                    clearanceLevel: true,
+                    createdAt: true,
+                }
+            })
+        } catch (dbError) {
+            console.error('[API] Registration blocked (Read-Only FS):', dbError);
+            return NextResponse.json(
+                { error: 'Registration is currently disabled in Secure Mode (Read-Only).' },
+                { status: 503 }
+            )
+        }
 
         // Create audit log
         await prisma.auditLog.create({

@@ -360,24 +360,24 @@ export function generateTimeSeriesData(days: number = 30) {
 // === NCTIRS UNIFIED PLATFORM GENERATORS ===
 
 const cyberThreatNames: Record<CyberThreatType, string[]> = {
-  APT: ['APT-KE-001 SANDSTORM', 'APT-KE-002 BUSHFIRE', 'APT-KE-003 MONSOON', 'APT-KE-004 SAVANNA'],
-  ZERO_DAY: ['CVE-2026-0041 Kernel Exploit', 'CVE-2026-0089 Browser RCE', 'CVE-2026-0123 Network Stack'],
-  DDOS: ['Volumetric Flood Attack', 'Application Layer Assault', 'Protocol Exploitation'],
-  RANSOMWARE: ['LOCKBIT-4.0', 'BLACKCAT-KENYA', 'REVIL-VARIANT', 'CONTI-RESURGENCE'],
-  PHISHING: ['Spear Phishing Campaign', 'Credential Harvesting', 'Business Email Compromise'],
-  DATA_BREACH: ['Database Exfiltration', 'API Data Leak', 'Insider Threat Detected'],
-  MALWARE: ['Trojan Deployment', 'Rootkit Installation', 'Wiper Malware'],
-  SQL_INJECTION: ['SQLi on Public Portal', 'Database Manipulation', 'Authentication Bypass'],
+  APT: ['APT-29 (Cozy Bear) - State Espionage', 'APT-41 (Double Dragon) - Grid Sabotage', 'LAZARUS GROUP - Financial Heist', 'SANDWORM - Infrastructure Attack'],
+  ZERO_DAY: ['PEGASUS II - Executive Surveillance', 'ETERNALBLUE_V2 - Network Propagation', 'SIG7 - Telecom Intercept Exploit'],
+  DDOS: ['BOTNET MIRAI-OCTOPUS (1.2 Tbps)', 'L7 HTTP Flood vs eCitizen', 'DNS Amplification Attack - Root Mirrors'],
+  RANSOMWARE: ['ROYAL RANSOM - Health Ministry Data', 'LOCKBIT RED - Judiciary Systems', 'BLACKCAT - Port Ops Encrypted'],
+  PHISHING: ['Spear-Phishing Cabinet Secretaries', 'Deepfake Audio - CEO Impersonation', 'Fake UN Aid Portal - Credential Harvest'],
+  DATA_BREACH: ['National ID Database Exfiltration', 'Voter Register Leak (Dark Web)', 'Classified Ministry Cables Dump'],
+  MALWARE: ['STUXNET-VARIANT - SCADA Controller', 'Wiper.KillDisk - Treasury Servers', 'Mobile Banking Trojan (Android)'],
+  SQL_INJECTION: ['iTax Database Dump', 'Immigration Portal Bypass', 'Police Case File Modification'],
 };
 
 const targetSystems: Record<CyberTargetType, string[]> = {
-  GOVERNMENT: ['eCitizen Portal', 'Huduma Centers', 'IFMIS', 'Digital ID System', 'KRA iTax'],
-  FINANCIAL: ['CBK Core Banking', 'M-Pesa Infrastructure', 'NSE Trading Platform', 'RTGS System'],
-  INFRASTRUCTURE: ['KPLC Grid Control', 'Nairobi Water SCADA', 'Kenya Ports Authority'],
-  HEALTHCARE: ['NHIF Database', 'Kenyatta Hospital EHR', 'Medical Supply Chain'],
-  TELECOM: ['Safaricom Core Network', 'Airtel Kenya Systems', 'National Fiber Backbone'],
-  ENERGY: ['Geothermal Plant SCADA', 'Oil Pipeline Monitoring', 'Fuel Distribution Network'],
-  TRANSPORT: ['JKIA Control Systems', 'SGR Operations', 'Kenya Airways Reservation'],
+  GOVERNMENT: ['Presidency (State House) Comms', 'KRA Domestic Tax Core', 'National Security Council Server', 'Integrated Population Registry'],
+  FINANCIAL: ['Nairobi Securities Exchange (NSE)', 'Central Bank SWIFT Gateway', 'M-PESA Transaction Ledger', 'KRA Payment Gateway'],
+  INFRASTRUCTURE: ['Seven Forks Hydro SCADA', 'Mombasa Port TOS (Terminal Ops)', 'Kenya Power National Control Center', 'Standard Gauge Railway (SGR) Signaling'],
+  HEALTHCARE: ['Vaccine Distribution Cold Chain', 'KEMSA Supply Database', 'Kenyatta National Hospital ICU Systems'],
+  TELECOM: ['National Optic Fibre Backbone (NOFBI)', 'Safaricom 5G Core', 'TEAMS Submarine Cable Landing Station'],
+  ENERGY: ['Kipevu Oil Terminal Valves', 'Geothermal Wellhead Controllers', 'Fuel Subsidy Database'],
+  TRANSPORT: ['JKIA Air Traffic Control (Radar)', 'Likoni Ferry Automated Ticketing', 'NTSA Vehicle Registration'],
 };
 
 // Generate cyber threats
