@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [20.x, 22.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -22,20 +22,19 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-          cache-dependency-path: nctirs-dashboard/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install Dependencies
         run: npm ci
-        working-directory: ./nctirs-dashboard
 
       - name: Lint
         run: npm run lint
-        working-directory: ./nctirs-dashboard
 
       - name: Test
         run: npm run test
-        working-directory: ./nctirs-dashboard
 
       - name: Build
+        env:
+          DATABASE_URL: "libsql://mock-db.turso.io"
+          TURSO_AUTH_TOKEN: "mock-token"
         run: npm run build
-        working-directory: ./nctirs-dashboard

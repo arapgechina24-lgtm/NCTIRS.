@@ -1,65 +1,49 @@
 'use client'
 
 import { useState, useEffect } from "react"
-import { Header, ViewType } from "@/components/Header"
-import { IncidentList } from "@/components/IncidentList"
-import { SurveillanceMonitor } from "@/components/SurveillanceMonitor"
-import { CommunityReports } from "@/components/CommunityReports"
-import { ThreatAnalyticsChart } from "@/components/ThreatAnalyticsChart"
-import { IncidentTrendsChart } from "@/components/IncidentTrendsChart"
-// NEW War Room Components
+// Layout components
+import { Header } from "@/components/layout/Header"
+// Threat components
+import { ThreatAnalyticsChart } from "@/components/threat/ThreatAnalyticsChart"
+import { ThreatMap } from "@/components/threat/ThreatMap"
+import { ThreatMonitor } from "@/components/threat/ThreatMonitor"
+import { ThreatAnalyticsEngine } from "@/components/threat/ThreatAnalyticsEngine"
+import AdversarialDefensePanel from "@/components/threat/AdversarialDefensePanel"
+// Incident components
+import { IncidentList } from "@/components/incident/IncidentList"
+import { IncidentTrendsChart } from "@/components/incident/IncidentTrendsChart"
+import EmergencyOverlay from "@/components/incident/EmergencyOverlay"
+import { AutomatedResponsePanel } from "@/components/incident/AutomatedResponsePanel"
+// Surveillance components
+import { SurveillanceMonitor } from "@/components/surveillance/SurveillanceMonitor"
+import { CommunityReports } from "@/components/surveillance/CommunityReports"
+// Infrastructure components
+import { DataLakeMonitor } from "@/components/infrastructure/DataLakeMonitor"
+import { SystemArchitecture } from "@/components/infrastructure/SystemArchitecture"
+import CNIHeatmap from "@/components/infrastructure/CNIHeatmap"
+// Intelligence components
+import AIAssistantPanel from "@/components/intelligence/AIAssistantPanel"
+import FederatedLearningHub from "@/components/intelligence/FederatedLearningHub"
+import ExplainableAIPanel from "@/components/intelligence/ExplainableAIPanel"
+import SovereignAIStatusPanel from "@/components/intelligence/SovereignAIStatusPanel"
+// Compliance components
+import KenyaContextPanel from "@/components/compliance/KenyaContextPanel"
+// Shared components
+import MultiplayerSession from "@/components/shared/MultiplayerSession"
+import DemoModeController from "@/components/shared/DemoModeController"
+import { VoiceCommandPanel } from "@/components/shared/VoiceCommandPanel"
+// NEW War Room Components (Pending restructure)
 import { LiveThreatMap } from "@/components/LiveThreatMap"
 import { AIConsole } from "@/components/AIConsole"
 import { SovereignToggle } from "@/components/SovereignToggle"
 import { NationalRiskRegistry } from "@/components/NationalRiskRegistry"
-import { IncidentTrendsChart as TrendsChart } from "@/components/IncidentTrendsChart" // Alias if needed
-
-// NCTIRS Unified Components
-import { DataLakeMonitor } from "@/components/DataLakeMonitor"
-import { ThreatAnalyticsEngine } from "@/components/ThreatAnalyticsEngine"
-import { AutomatedResponsePanel } from "@/components/AutomatedResponsePanel"
-import { SystemArchitecture } from "@/components/SystemArchitecture"
-// NEW Components
-import CNIHeatmap from "@/components/CNIHeatmap"
-import AIAssistantPanel from "@/components/AIAssistantPanel"
-import MultiplayerSession from "@/components/MultiplayerSession"
 import { MultiplayerCanvas } from "@/components/MultiplayerCanvas"
-import EmergencyOverlay from "@/components/EmergencyOverlay"
-import { ThreatMonitor } from "@/components/ThreatMonitor"
-import DemoModeController from "@/components/DemoModeController"
-import { VoiceCommandPanel } from "@/components/VoiceCommandPanel"
-// 4 WINNING PILLARS: MAJESTIC SHIELD
-import AdversarialDefensePanel from "@/components/AdversarialDefensePanel"
-import FederatedLearningHub from "@/components/FederatedLearningHub"
-import ExplainableAIPanel from "@/components/ExplainableAIPanel"
-import SovereignAIStatusPanel from "@/components/SovereignAIStatusPanel"
 // Analytics tracking
 import { trackPageView, trackAction, trackPerformance } from "@/lib/analytics"
 // API Client for real data
 import { fetchIncidents, fetchThreats } from "@/lib/api"
-
-import {
-  generateMockIncidents,
-  generateCrimePredictions,
-  generateSurveillanceFeeds,
-  generateCommunityReports,
-  generateEmergencyResponses,
-  generateThreatAnalytics,
-  generateTimeSeriesData,
-  // NCTIRS generators
-  generateCyberThreats,
-  generateDataLakeSources,
-  generateBlockchainLedger,
-  generateCoordinatedAttacks,
-  generateAutomatedResponses,
-  generatePerceptionLayerStatus,
-  generateCognitionLayerStatus,
-  generateIntegrityLayerStatus,
-  // 4 WINNING PILLARS generators
-  generateAdversarialMetrics,
-  generateFederatedNodes,
-  generateXAIExplanations,
-  generateSovereignAIStatus,
+// Types
+import type {
   SecurityIncident,
   CrimePrediction,
   SurveillanceFeed,
@@ -75,12 +59,49 @@ import {
   PerceptionLayerStatus,
   CognitionLayerStatus,
   IntegrityLayerStatus,
-  // 4 WINNING PILLARS types
   AdversarialMetrics,
   FederatedLearningStatus,
   XAIExplanation,
   SovereignAIStatus,
+} from "@/types"
+// Mock data generators
+import {
+  generateCrimePredictions,
+  generateSurveillanceFeeds,
+  generateCommunityReports,
+  generateEmergencyResponses,
+  generateThreatAnalytics,
+  generateTimeSeriesData,
+  generateDataLakeSources,
+  generateBlockchainLedger,
+  generateCoordinatedAttacks,
+  generateAutomatedResponses,
+  generatePerceptionLayerStatus,
+  generateCognitionLayerStatus,
+  generateIntegrityLayerStatus,
+  generateAdversarialMetrics,
+  generateFederatedNodes,
+  generateXAIExplanations,
+  generateSovereignAIStatus,
 } from "@/lib/mockData"
+import {
+  generateNairobiTraffic,
+  generateMpesaData,
+  getCurrentNairobiWeather,
+  TrafficNode,
+  MpesaTransaction,
+  WeatherLog
+} from "@/lib/kenyaContextData"
+import {
+  generateBorderLogs,
+  generateWildlifeData,
+  generateSocialSentiment,
+  generateCyberAttribution,
+  BorderLog,
+  WildlifePing,
+  SocialSentiment,
+  ISPTrace
+} from "@/lib/kenyaExtendedData"
 import { createNC4Report } from "@/lib/soar-logic"
 
 interface DashboardData {
@@ -105,6 +126,15 @@ interface DashboardData {
   federatedStatus: FederatedLearningStatus;
   xaiExplanations: XAIExplanation[];
   sovereignAIStatus: SovereignAIStatus;
+  // Kenya Context "Golden Data"
+  kenyaWeather: WeatherLog;
+  kenyaTraffic: TrafficNode[];
+  mpesaTransactions: MpesaTransaction[];
+  // Extended Metadata
+  borderLogs: BorderLog[];
+  wildlife: WildlifePing[];
+  sentiment: SocialSentiment[];
+  cyberTraces: ISPTrace[];
 }
 
 // KeyMetrics Component
@@ -153,7 +183,10 @@ function KeyMetrics({ metrics }: KeyMetricsProps) {
 }
 
 export default function Home() {
-  const [currentView, setCurrentView] = useState<ViewType>('COMMAND_CENTER')
+  /* 
+   * View State
+   */
+  const [currentView, setCurrentView] = useState<'COMMAND_CENTER' | 'FUSION_CENTER' | 'THREAT_MATRIX' | 'ANALYTICS' | 'OPERATIONS'>('COMMAND_CENTER')
   const [isEmergency, setIsEmergency] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [data, setData] = useState<DashboardData | null>(null)
@@ -181,60 +214,81 @@ export default function Home() {
     async function loadData() {
       const startTime = performance.now()
 
-      // Fetch from API (with fallback to mock data)
-      const [incidents, cyberThreats] = await Promise.all([
-        fetchIncidents({ limit: 30 }),
-        fetchThreats({ limit: 20 }),
-      ])
+      try {
+        // Fetch from API (with fallback to mock data)
+        const [incidents, cyberThreats] = await Promise.all([
+          fetchIncidents({ limit: 30 }),
+          fetchThreats({ limit: 20 }),
+        ])
 
-      // Generate remaining mock data for components without API yet
-      const predictions = generateCrimePredictions(15);
-      const surveillanceFeeds = generateSurveillanceFeeds(40);
-      const communityReports = generateCommunityReports(25);
-      const emergencyResponses = generateEmergencyResponses(12);
-      const threatAnalytics = generateThreatAnalytics();
-      const timeSeriesData = generateTimeSeriesData(30);
-      // NCTIRS data (mock for now)
-      const dataLakeSources = generateDataLakeSources();
-      const blockchainLedger = generateBlockchainLedger(25);
-      const coordinatedAttacks = generateCoordinatedAttacks(5);
-      const automatedResponses = generateAutomatedResponses(15);
-      const perceptionLayer = generatePerceptionLayerStatus();
-      const cognitionLayer = generateCognitionLayerStatus();
-      const integrityLayer = generateIntegrityLayerStatus();
-      // 4 WINNING PILLARS data
-      const adversarialMetrics = generateAdversarialMetrics();
-      const federatedStatus = generateFederatedNodes();
-      const xaiExplanations = generateXAIExplanations(8);
-      const sovereignAIStatus = generateSovereignAIStatus();
+        // Generate remaining mock data for components without API yet
+        const predictions = generateCrimePredictions(15);
+        const surveillanceFeeds = generateSurveillanceFeeds(40);
+        const communityReports = generateCommunityReports(25);
+        const emergencyResponses = generateEmergencyResponses(12);
+        const threatAnalytics = generateThreatAnalytics();
+        const timeSeriesData = generateTimeSeriesData(30);
+        // NCTIRS data (mock for now)
+        const dataLakeSources = generateDataLakeSources();
+        const blockchainLedger = generateBlockchainLedger(25);
+        const coordinatedAttacks = generateCoordinatedAttacks(5);
+        const automatedResponses = generateAutomatedResponses(15);
+        const perceptionLayer = generatePerceptionLayerStatus();
+        const cognitionLayer = generateCognitionLayerStatus();
+        const integrityLayer = generateIntegrityLayerStatus();
+        // 4 WINNING PILLARS data
+        const adversarialMetrics = generateAdversarialMetrics();
+        const federatedStatus = generateFederatedNodes();
+        const xaiExplanations = generateXAIExplanations(8);
+        const sovereignAIStatus = generateSovereignAIStatus();
 
-      setData({
-        incidents,
-        predictions,
-        surveillanceFeeds,
-        communityReports,
-        emergencyResponses,
-        threatAnalytics,
-        timeSeriesData,
-        cyberThreats,
-        dataLakeSources,
-        blockchainLedger,
-        coordinatedAttacks,
-        automatedResponses,
-        perceptionLayer,
-        cognitionLayer,
-        integrityLayer,
-        // 4 WINNING PILLARS
-        adversarialMetrics,
-        federatedStatus,
-        xaiExplanations,
-        sovereignAIStatus,
-      })
-      setMounted(true)
+        // Kenya 'Golden Data'
+        const kenyaWeather = getCurrentNairobiWeather();
+        const kenyaTraffic = generateNairobiTraffic(30);
+        const mpesaTransactions = generateMpesaData(40);
+        const borderLogs = generateBorderLogs();
+        const wildlife = generateWildlifeData();
+        const sentiment = generateSocialSentiment();
+        const cyberTraces = generateCyberAttribution();
 
-      // Track render performance
-      const renderTime = performance.now() - startTime
-      trackPerformance('initial_render', { renderTime })
+        setData({
+          incidents,
+          predictions,
+          surveillanceFeeds,
+          communityReports,
+          emergencyResponses,
+          threatAnalytics,
+          timeSeriesData,
+          cyberThreats,
+          dataLakeSources,
+          blockchainLedger,
+          coordinatedAttacks,
+          automatedResponses,
+          perceptionLayer,
+          cognitionLayer,
+          integrityLayer,
+          // 4 WINNING PILLARS
+          adversarialMetrics,
+          federatedStatus,
+          xaiExplanations,
+          sovereignAIStatus,
+          kenyaWeather,
+          kenyaTraffic,
+          mpesaTransactions,
+          borderLogs,
+          wildlife,
+          sentiment,
+          cyberTraces
+        })
+      } catch (error) {
+        console.error('Critical Error loading dashboard data:', error);
+        // Fallback to entirely mock data if critical failure (though individual fetches should handle this)
+      } finally {
+        setMounted(true)
+        // Track render performance
+        const renderTime = performance.now() - startTime
+        trackPerformance('initial_render', { renderTime })
+      }
     }
 
     loadData()
@@ -256,34 +310,7 @@ export default function Home() {
     )
   }
 
-  const {
-    incidents,
-    predictions,
-    surveillanceFeeds,
-    communityReports,
-    emergencyResponses,
-    threatAnalytics,
-    timeSeriesData,
-    cyberThreats,
-    dataLakeSources,
-    blockchainLedger,
-    coordinatedAttacks,
-    automatedResponses,
-    perceptionLayer,
-    cognitionLayer,
-    integrityLayer,
-  } = data
-
-  // Calculate stats
-  const activeIncidents = incidents.filter(i => i.status === 'ACTIVE').length;
-  const highThreatCount = incidents.filter(i => i.threatLevel === 'CRITICAL' || i.threatLevel === 'HIGH').length;
-  const activeSurveillance = surveillanceFeeds.filter(f => f.status === 'ACTIVE').length;
-  const verifiedReports = communityReports.filter(r => r.verified).length;
-  const activeResponses = emergencyResponses.filter(r => r.status !== 'RESOLVED').length;
-  // NCTIRS stats
-  const criticalCyber = cyberThreats.filter(t => t.severity === 'CRITICAL').length;
-  const activeCoordinated = coordinatedAttacks.filter(a => a.status !== 'RESOLVED').length;
-  const autoResponsesActive = automatedResponses.filter(r => r.status === 'EXECUTING').length;
+  // Calculate stats logic was removed here
 
   const handleMitigation = async () => {
     // 1. Orchestration: Simulate Air-Gap
@@ -319,6 +346,19 @@ export default function Home() {
 
     // 3. Return report for visualization
     return report;
+  };
+
+  const {
+    highThreatCount = 0,
+    activeResponses = 0,
+    criticalCyber = 0,
+    activeCoordinated = 0
+  } = {
+    // Recalculating these cheaply for display since we removed the vars before
+    highThreatCount: data.incidents.filter(i => i.threatLevel === 'CRITICAL' || i.threatLevel === 'HIGH').length,
+    activeResponses: data.emergencyResponses.filter(r => r.status !== 'RESOLVED').length,
+    criticalCyber: data.cyberThreats.filter(t => t.severity === 'CRITICAL').length,
+    activeCoordinated: data.coordinatedAttacks.filter(a => a.status !== 'RESOLVED').length
   };
 
   return (
@@ -373,6 +413,15 @@ export default function Home() {
                   cognition={data.cognitionLayer}
                   integrity={data.integrityLayer}
                 />
+                <KenyaContextPanel
+                  weather={data.kenyaWeather}
+                  traffic={data.kenyaTraffic}
+                  transactions={data.mpesaTransactions}
+                  borderLogs={data.borderLogs}
+                  wildlife={data.wildlife}
+                  sentiment={data.sentiment}
+                  cyberTraces={data.cyberTraces}
+                />
                 <DataLakeMonitor sources={data.dataLakeSources} />
               </div>
 
@@ -426,12 +475,16 @@ export default function Home() {
                 />
 
                 <IncidentList incidents={data.incidents} maxItems={8} />
-                <SurveillanceMonitor feeds={data.surveillanceFeeds} maxItems={6} />
                 <CommunityReports reports={data.communityReports} maxItems={5} />
 
                 <AIConsole />
               </div>
 
+            </div>
+
+            {/* FULL WIDTH: Surveillance Network */}
+            <div className="flex flex-col gap-4">
+              <SurveillanceMonitor feeds={data.surveillanceFeeds} maxItems={12} />
             </div>
           </div>
         )}
