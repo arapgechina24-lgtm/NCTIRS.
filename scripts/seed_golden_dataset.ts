@@ -120,7 +120,7 @@ async function main() {
     console.log("\n🎉 Golden Dataset successfully seeded into the database.");
 }
 
-function attackTypeFromVector(vector) {
+function attackTypeFromVector(vector: string) {
     if (vector.includes('T1498')) return 'DDOS';
     if (vector.includes('T1486')) return 'RANSOMWARE';
     if (vector.includes('T1090')) return 'BOTNET';
