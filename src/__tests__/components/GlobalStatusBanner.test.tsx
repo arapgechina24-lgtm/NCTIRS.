@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import GlobalStatusBanner from '@/components/layout/GlobalStatusBanner'
 
 describe('GlobalStatusBanner', () => {
@@ -9,14 +9,14 @@ describe('GlobalStatusBanner', () => {
     })
 
     it('should display the current security level text', () => {
-        render(<GlobalStatusBanner />)
+        const { getByText } = render(<GlobalStatusBanner />)
         // Default level is 3 (Amber)
-        expect(screen.getByText(/ACTIVE SECTORAL THREATS DETECTED/i)).toBeDefined()
+        expect(getByText(/ACTIVE SECTORAL THREATS DETECTED/i)).toBeDefined()
     })
 
     it('should display LEVEL 3 indicator', () => {
-        render(<GlobalStatusBanner />)
-        expect(screen.getByText(/LEVEL 3/i)).toBeDefined()
+        const { getByText } = render(<GlobalStatusBanner />)
+        expect(getByText(/LEVEL 3/i)).toBeDefined()
     })
 
     it('should have amber background for level 3', () => {
