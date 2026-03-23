@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 import { createHash } from 'crypto'
+import { executeSOARPlaybook } from '@/lib/soar-engine'
 
 // GET /api/incidents - List all incidents
 export async function GET(request: NextRequest) {
@@ -146,9 +147,26 @@ export async function POST(request: NextRequest) {
             }
         })
 
+        // ── AUTONOMOUS SOAR: Auto-trigger containment for CRITICAL/HIGH ──
+        let soarResult = null;
+        if (severity === 'CRITICAL' || severity === 'HIGH') {
+            try {
+                soarResult = await executeSOARPlaybook(
+                    incident.id,
+                    severity,
+                    title,
+                    targetAsset
+                );
+                console.log(`[SOAR] Autonomous response triggered: ${soarResult.actionsExecuted.length} actions`);
+            } catch (soarError) {
+                console.error('[SOAR] Autonomous response failed:', soarError);
+            }
+        }
+
         return NextResponse.json({
             success: true,
             incident,
+            soarResponse: soarResult,
         }, { status: 201 })
 
     } catch (error) {
