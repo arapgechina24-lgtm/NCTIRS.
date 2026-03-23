@@ -34,6 +34,7 @@ import { VoiceCommandPanel } from "@/components/shared/VoiceCommandPanel"
 // NEW War Room Components (Pending restructure)
 import { LiveThreatMap } from "@/components/LiveThreatMap"
 import { AIConsole } from "@/components/AIConsole"
+import { LiveThreatFeed } from "@/components/threat/LiveThreatFeed"
 import { SovereignToggle } from "@/components/SovereignToggle"
 import { NationalRiskRegistry } from "@/components/NationalRiskRegistry"
 import { MultiplayerCanvas } from "@/components/MultiplayerCanvas"
@@ -457,8 +458,10 @@ export default function Home() {
               <div className="flex flex-col gap-4">
                 <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
                   <span className="w-2 h-2 bg-cyan-500 rounded-full" />
-                  Intelligence Feed
+                  Live Threat Intelligence
                 </div>
+
+                <LiveThreatFeed />
 
                 <ThreatAnalyticsEngine
                   cyberThreats={data.cyberThreats}

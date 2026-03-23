@@ -183,17 +183,18 @@ export default function LoginPage() {
 
                     {/* Demo Credentials */}
                     <div className="mt-6 p-3 bg-cyan-950/20 border border-cyan-900/30">
-                        <div className="text-[9px] text-cyan-600 mb-2">DEMO CREDENTIALS:</div>
-                        <div className="grid grid-cols-2 gap-2 text-[10px]">
-                            <div>
-                                <span className="text-green-800">Admin:</span>
-                                <span className="text-green-500 ml-1">admin@nis.go.ke</span>
-                            </div>
-                            <div>
-                                <span className="text-green-800">Pass:</span>
-                                <span className="text-green-500 ml-1">admin123</span>
-                            </div>
-                        </div>
+                        <div className="text-[9px] text-cyan-600 mb-2">DEMO ACCESS (HACKATHON MODE):</div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setEmail('admin@nis.go.ke');
+                                setPassword('admin123');
+                            }}
+                            className="w-full py-2 bg-cyan-900/30 border border-cyan-700/50 text-cyan-400 text-[10px] font-bold tracking-wider hover:bg-cyan-900/50 transition-all flex items-center justify-center gap-2"
+                        >
+                            <Shield className="h-3 w-3" />
+                            AUTO-FILL DEMO CREDENTIALS
+                        </button>
                     </div>
 
                     {/* Footer */}
