@@ -26,20 +26,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
 
-      - name: Build
+      - name: Install and Build
         env:
-          DATABASE_URL: "libsql://mock-db.turso.io"
-          TURSO_AUTH_TOKEN: "mock-token"
+          DATABASE_URL: "file:./ci-test.db"
         run: |
-          npm install
+          npm ci
           npm run build
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{ matrix.language }}"
