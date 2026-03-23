@@ -27,8 +27,7 @@ import FederatedLearningHub from "@/components/intelligence/FederatedLearningHub
 import ExplainableAIPanel from "@/components/intelligence/ExplainableAIPanel"
 import SovereignAIStatusPanel from "@/components/intelligence/SovereignAIStatusPanel"
 // Compliance components
-import KenyaContextPanel from "@/components/compliance/KenyaContextPanel"
-// Shared components
+// KenyaContextPanel removed for presentation neatness
 import MultiplayerSession from "@/components/shared/MultiplayerSession"
 import DemoModeController from "@/components/shared/DemoModeController"
 import { VoiceCommandPanel } from "@/components/shared/VoiceCommandPanel"
@@ -405,7 +404,7 @@ export default function Home() {
               <div className="flex flex-col gap-4">
                 <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
                   <span className="w-2 h-2 bg-green-500 rounded-full" />
-                  Infrastructure Status
+                  Infrastructure & Context
                 </div>
                 <CNIHeatmap />
                 <SystemArchitecture
@@ -413,15 +412,12 @@ export default function Home() {
                   cognition={data.cognitionLayer}
                   integrity={data.integrityLayer}
                 />
-                <KenyaContextPanel
-                  weather={data.kenyaWeather}
-                  traffic={data.kenyaTraffic}
-                  transactions={data.mpesaTransactions}
-                  borderLogs={data.borderLogs}
-                  wildlife={data.wildlife}
-                  sentiment={data.sentiment}
-                  cyberTraces={data.cyberTraces}
-                />
+                
+                {/* Replaced KenyaContextPanel with NationalRiskRegistry to unsqueeze Column 2 */}
+                <div className="h-64">
+                  <NationalRiskRegistry threats={data.cyberThreats} />
+                </div>
+
                 <DataLakeMonitor sources={data.dataLakeSources} />
               </div>
 
@@ -444,13 +440,8 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* NATIONAL RISK REGISTRY (New) */}
-                <div className="h-64">
-                  <NationalRiskRegistry threats={data.cyberThreats} />
-                </div>
-
-                {/* Main Map */}
-                <div className="h-80 border border-green-900/50 overflow-hidden relative shadow-[0_0_20px_rgba(0,255,0,0.1)]">
+                {/* THREAT VISUALIZATION MAP - Heatmap Powered */}
+                <div className="h-[450px] border border-green-900/50 overflow-hidden relative shadow-[0_0_20px_rgba(0,255,0,0.1)] flex flex-col">
                   <LiveThreatMap
                     incidents={data.incidents}
                     predictions={data.predictions}

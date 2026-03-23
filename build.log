@@ -1,0 +1,52 @@
+
+> app@0.1.0 build
+> prisma generate && next build
+
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma/schema.prisma.
+warn Preview feature "driverAdapters" is deprecated. The functionality can be used without specifying it as a preview feature.
+
+✔ Generated Prisma Client (v7.3.0) to ./node_modules/@prisma/client in 145ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./node_modules/recharts/es6/util/ReactUtils.js:3:1
+Module not found: Can't resolve 'react-is'
+[0m [90m 1 |[39m [36mimport[39m [36mget[39m [36mfrom[39m [32m'es-toolkit/compat/get'[39m[33m;[39m
+ [90m 2 |[39m [36mimport[39m { [33mChildren[39m } [36mfrom[39m [32m'react'[39m[33m;[39m
+[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { isFragment } [36mfrom[39m [32m'react-is'[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 4 |[39m [36mimport[39m { isNullish } [36mfrom[39m [32m'./DataUtils'[39m[33m;[39m
+ [90m 5 |[39m [36mexport[39m [36mvar[39m [33mSCALE_TYPES[39m [33m=[39m [[32m'auto'[39m[33m,[39m [32m'linear'[39m[33m,[39m [32m'pow'[39m[33m,[39m [32m'sqrt'[39m[33m,[39m [32m'log'[39m[33m,[39m [32m'identity'[39m[33m,[39m [32m'time'[39m[33m,[39m [32m'band'[39m[33m,[39m [32m'point'[39m[33m,[39m [32m'ordinal'[39m[33m,[39m [32m'quantile'[39m[33m,[39m [32m'quantize'[39m[33m,[39m [32m'utc'[39m[33m,[39m [32m'sequential'[39m[33m,[39m [32m'threshold'[39m][33m;[39m
+ [90m 6 |[39m[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./node_modules/recharts/es6/util/ReactUtils.js [Client Component Browser]
+    ./node_modules/recharts/es6/cartesian/Line.js [Client Component Browser]
+    ./src/components/incident/IncidentTrendsChart.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./node_modules/recharts/es6/util/ReactUtils.js [Client Component SSR]
+    ./node_modules/recharts/es6/cartesian/Line.js [Client Component SSR]
+    ./src/components/incident/IncidentTrendsChart.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)

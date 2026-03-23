@@ -55,8 +55,15 @@ export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThre
 
         const initMap = async () => {
             const L = (await import('leaflet')).default;
+            // Provide global \`L\` for plugins before importing them
+            if (typeof window !== 'undefined') {
+                // @ts-ignore
+                window.L = L;
+            }
             // @ts-expect-error - Leaflet CSS import issue
             await import('leaflet/dist/leaflet.css');
+            // No types needed for runtime injection
+            await import('leaflet.heat');
 
             if (mapInstanceRef.current) {
                 mapInstanceRef.current.remove();
@@ -136,34 +143,57 @@ export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThre
 
             // --- LAYERS ---
 
-            // 1. THREATS LAYER
+            // 1. THREATS LAYER (HEATMAP + FOCUSED MARKERS)
             if (activeLayers.threats) {
+                // Add Heatmap Layer for all incidents
+                const heatPoints = incidents.map(incident => {
+                    let intensity = 0.4;
+                    if (incident.threatLevel === 'CRITICAL') intensity = 1.0;
+                    else if (incident.threatLevel === 'HIGH') intensity = 0.8;
+                    else if (incident.threatLevel === 'MEDIUM') intensity = 0.6;
+                    
+                    return [
+                        incident.location.coordinates[0],
+                        incident.location.coordinates[1],
+                        intensity
+                    ];
+                });
+
+                // @ts-ignore - heatLayer is attached to L by leaflet.heat
+                L.heatLayer(heatPoints as [number, number, number][], {
+                    radius: 35,
+                    blur: 25,
+                    maxZoom: 10,
+                    max: 1.0,
+                    gradient: {
+                        0.4: '#eab308', // yellow
+                        0.7: '#f97316', // orange
+                        1.0: '#ef4444'  // red
+                    }
+                }).addTo(map);
+
+                // Add interactive markers only for Critical or Neutralized threats
                 incidents.forEach((incident) => {
                     const isNeutralized = neutralizedIds.has(incident.id);
+                    // Only show Individual Markers for Critical or Neutralized threats on top of the heatmap
+                    if (!isNeutralized && incident.threatLevel !== 'CRITICAL') return;
 
-                    // If neutralized, show Blue Shield Wave. If Critical/High, show Red Pulse. Else Green.
-                    let color = '#00ff00';
+                    let color = '#ff0000';
                     let className = 'pulsing-beacon';
 
                     if (isNeutralized) {
                         color = '#3b82f6'; // Blue
-                        className = 'shield-wave'; // Special Shield Class
-                    } else if (incident.threatLevel === 'CRITICAL') {
-                        color = '#ff0000';
-                    } else if (incident.threatLevel === 'HIGH') {
-                        color = '#ff8800';
-                    } else if (incident.threatLevel === 'MEDIUM') {
-                        color = '#ffcc00';
+                        className = 'shield-wave';
                     }
 
                     const iconHtml = isNeutralized
-                        ? `<div style="width: 100%; height: 100%;"></div>` // Handled by CSS pseudo-elements
-                        : `<div class="marker-pin" style="background-color: ${color}; box-shadow: 0 0 10px ${color};"></div>`;
+                        ? `<div style="width: 100%; height: 100%;"></div>` 
+                        : `<div class="marker-pin" style="background-color: ${color}; box-shadow: 0 0 10px ${color}; border-color: #fff;"></div>`;
 
                     const icon = L.divIcon({
                         className: className,
                         html: iconHtml,
-                        iconSize: isNeutralized ? [20, 20] : [12, 12], // Shield is slightly larger base
+                        iconSize: isNeutralized ? [20, 20] : [12, 12],
                         iconAnchor: isNeutralized ? [10, 10] : [6, 6]
                     });
 
