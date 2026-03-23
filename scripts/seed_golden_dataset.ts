@@ -25,10 +25,29 @@ function generateRandomIP() {
     return `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
 }
 
+// Retry helper for transient network errors (ECONNRESET, etc.)
+async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            return await fn();
+        } catch (err: any) {
+            const isTransient = err?.cause?.code === 'ECONNRESET' || err?.message?.includes('fetch failed');
+            if (isTransient && attempt < maxRetries) {
+                const delay = attempt * 2000; // 2s, 4s, 6s backoff
+                process.stdout.write(`\n⚠️  Network error, retrying in ${delay / 1000}s (attempt ${attempt}/${maxRetries})...\n`);
+                await new Promise(r => setTimeout(r, delay));
+            } else {
+                throw err;
+            }
+        }
+    }
+    throw new Error('Exhausted retries');
+}
+
 async function main() {
     console.log("🧹 Clearing old mock data...");
-    await prisma.threat.deleteMany({});
-    await prisma.incident.deleteMany({});
+    await withRetry(() => prisma.threat.deleteMany({}));
+    await withRetry(() => prisma.incident.deleteMany({}));
 
     console.log("🚀 Generating Golden Dataset (Synthesized CIC-IDS2017 + Kenya Context)...");
 
@@ -73,13 +92,13 @@ async function main() {
             });
         }
 
-        // Insert batch
+        // Insert batch with retry
         for (const data of incidentsToCreate) {
-            const incident = await prisma.incident.create({ data });
+            const incident = await withRetry(() => prisma.incident.create({ data }));
             
             // Link a threat 60% of the time based on MITRE
             if (Math.random() > 0.4) {
-                await prisma.threat.create({
+                await withRetry(() => prisma.threat.create({
                     data: {
                         name: `${data.attackVector.split(':')[0]} Threat Actor`,
                         type: attackTypeFromVector(data.attackVector),
@@ -90,7 +109,7 @@ async function main() {
                         mitreId: data.attackVector.split(':')[0],
                         incidentId: incident.id
                     }
-                });
+                }));
             }
         }
         
