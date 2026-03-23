@@ -1,12 +1,58 @@
 'use client'
 
-import { useState, useEffect } from "react"
-import { Brain, Cpu, Target, TrendingUp, AlertTriangle, Zap } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
+import { Brain, Cpu, Target, TrendingUp, AlertTriangle, Zap, Activity, Shield, BarChart3 } from "lucide-react"
 import { CyberThreat, CoordinatedAttack } from "@/lib/mockData"
 
 interface ThreatAnalyticsEngineProps {
     cyberThreats: CyberThreat[];
     coordinatedAttacks: CoordinatedAttack[];
+}
+
+interface AnomalyResult {
+    incidentId: string;
+    title: string;
+    anomalyScore: number;
+    isAnomaly: boolean;
+    deviation: string;
+    reason: string;
+}
+
+interface BehavioralPattern {
+    pattern: string;
+    description: string;
+    frequency: number;
+    riskLevel: string;
+    mitreTactics: string[];
+    confidence: number;
+}
+
+interface PredictionResult {
+    period: string;
+    predictedIncidents: number;
+    predictedCritical: number;
+    confidence: number;
+    trend: 'ESCALATING' | 'STABLE' | 'DECLINING';
+    riskForecast: string;
+}
+
+interface AnalyticsData {
+    totalInferenceMs: number;
+    recordsProcessed: number;
+    anomalyDetection: {
+        anomaliesFound: number;
+        results: AnomalyResult[];
+    };
+    behavioralAnalysis: {
+        patternsFound: number;
+        attackChainsIdentified: number;
+        patterns: BehavioralPattern[];
+        behaviorProfile: Record<string, unknown>;
+    };
+    predictiveModeling: {
+        forecast: PredictionResult[];
+        processingMetrics: Record<string, number>;
+    };
 }
 
 const severityColors = {
@@ -16,21 +62,51 @@ const severityColors = {
     LOW: 'text-green-400 bg-green-950/50 border-green-700/50',
 }
 
+const patternColors: Record<string, string> = {
+    'TEMPORAL_BURST': 'text-red-400',
+    'TARGET_FIXATION': 'text-orange-400',
+    'MULTI_VECTOR_APT': 'text-purple-400',
+    'GEOGRAPHIC_CLUSTER': 'text-yellow-400',
+}
+
+type ActiveTab = 'anomalies' | 'behavioral' | 'predictions';
+
 export function ThreatAnalyticsEngine({ cyberThreats, coordinatedAttacks }: ThreatAnalyticsEngineProps) {
-    const [processingCount, setProcessingCount] = useState(0);
+    const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<ActiveTab>('anomalies');
+    const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+
+    const fetchAnalytics = useCallback(async () => {
+        try {
+            const res = await fetch('/api/ml/analytics');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success) {
+                    setAnalytics(data);
+                }
+            }
+        } catch (err) {
+            console.error('[ATAE] Failed to fetch analytics:', err);
+        } finally {
+            setLoading(false);
+            setLastRefresh(new Date());
+        }
+    }, []);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setProcessingCount(prev => prev + Math.floor(Math.random() * 50) + 10);
-        }, 1000);
+        fetchAnalytics();
+        // Refresh every 30 seconds (real-time monitoring)
+        const interval = setInterval(fetchAnalytics, 30000);
         return () => clearInterval(interval);
-    }, []);
+    }, [fetchAnalytics]);
 
     const criticalThreats = cyberThreats.filter(t => t.severity === 'CRITICAL');
     const activeCoordinated = coordinatedAttacks.filter(a => a.status !== 'RESOLVED');
 
     return (
         <div className="bg-black border border-green-900/50 rounded-none p-4 card-shadow">
+            {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                     <div className="relative">
@@ -41,12 +117,14 @@ export function ThreatAnalyticsEngine({ cyberThreats, coordinatedAttacks }: Thre
                     </div>
                     <div>
                         <h2 className="text-sm font-bold text-green-400 tracking-wider">AI THREAT ANALYTICS ENGINE</h2>
-                        <p className="text-[10px] text-green-800 font-mono">ATAE v3.2 • DEEP LEARNING ACTIVE</p>
+                        <p className="text-[10px] text-green-800 font-mono">ATAE v4.0 • DEEP LEARNING ACTIVE • {analytics ? `${analytics.recordsProcessed} RECORDS` : 'LOADING...'}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-green-950/30 border border-green-800/50">
                     <Cpu className="h-4 w-4 text-green-500 animate-pulse" />
-                    <span className="text-[10px] font-mono text-green-400">PROCESSING: {processingCount.toLocaleString()}/hr</span>
+                    <span className="text-[10px] font-mono text-green-400">
+                        {analytics ? `${analytics.totalInferenceMs}ms INFERENCE` : 'COMPUTING...'}
+                    </span>
                 </div>
             </div>
 
@@ -69,8 +147,126 @@ export function ThreatAnalyticsEngine({ cyberThreats, coordinatedAttacks }: Thre
                 </div>
             )}
 
-            {/* Threat Classification Grid */}
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            {/* Tab Navigation */}
+            <div className="flex gap-1 mb-3">
+                {([
+                    { key: 'anomalies' as ActiveTab, label: 'ANOMALY DETECTION', icon: Activity, count: analytics?.anomalyDetection.anomaliesFound },
+                    { key: 'behavioral' as ActiveTab, label: 'BEHAVIORAL ANALYSIS', icon: Shield, count: analytics?.behavioralAnalysis.patternsFound },
+                    { key: 'predictions' as ActiveTab, label: 'PREDICTIONS', icon: BarChart3, count: analytics?.predictiveModeling.forecast.length },
+                ]).map(tab => (
+                    <button
+                        key={tab.key}
+                        onClick={() => setActiveTab(tab.key)}
+                        className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-[9px] font-mono border transition-all ${
+                            activeTab === tab.key
+                                ? 'border-cyan-600 bg-cyan-950/30 text-cyan-400'
+                                : 'border-green-900/30 bg-black/50 text-green-700 hover:text-green-400'
+                        }`}
+                    >
+                        <tab.icon className="h-3 w-3" />
+                        {tab.label}
+                        {tab.count !== undefined && (
+                            <span className="px-1 bg-green-950 text-green-400">{tab.count}</span>
+                        )}
+                    </button>
+                ))}
+            </div>
+
+            {/* Tab Content */}
+            {loading ? (
+                <div className="text-center py-6">
+                    <div className="animate-pulse text-green-600 text-xs font-mono">RUNNING DEEP ANALYSIS ON GOLDEN DATASET...</div>
+                </div>
+            ) : (
+                <>
+                    {/* ANOMALY DETECTION TAB */}
+                    {activeTab === 'anomalies' && analytics && (
+                        <div className="space-y-2">
+                            <div className="text-[10px] font-bold text-cyan-400 flex items-center gap-2 mb-2">
+                                <Activity className="h-3 w-3" />
+                                Z-SCORE ANOMALY DETECTOR • THRESHOLD: Z &gt; 1.8
+                            </div>
+                            {analytics.anomalyDetection.results.length === 0 ? (
+                                <div className="text-[10px] text-green-700 font-mono p-3 border border-green-900/30">No anomalies detected — all activity within baseline parameters</div>
+                            ) : (
+                                analytics.anomalyDetection.results.slice(0, 5).map(anomaly => (
+                                    <div key={anomaly.incidentId} className="bg-black/50 border border-red-900/30 p-2 hover:border-red-700/50 transition-all">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="text-[10px] font-bold text-red-400 truncate max-w-[200px]">{anomaly.title}</span>
+                                            <span className="text-[8px] px-1.5 py-0.5 bg-red-950/50 text-red-400 font-mono">
+                                                {anomaly.deviation} • SCORE: {anomaly.anomalyScore}
+                                            </span>
+                                        </div>
+                                        <div className="text-[9px] text-yellow-500/80 font-mono">{anomaly.reason}</div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )}
+
+                    {/* BEHAVIORAL ANALYSIS TAB */}
+                    {activeTab === 'behavioral' && analytics && (
+                        <div className="space-y-2">
+                            <div className="text-[10px] font-bold text-cyan-400 flex items-center gap-2 mb-2">
+                                <Shield className="h-3 w-3" />
+                                ATTACK PATTERN SEQUENCING • {analytics.behavioralAnalysis.attackChainsIdentified} KILL CHAINS
+                            </div>
+                            {analytics.behavioralAnalysis.patterns.slice(0, 5).map((pattern, idx) => (
+                                <div key={idx} className="bg-black/50 border border-green-900/30 p-2">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className={`text-[10px] font-bold ${patternColors[pattern.pattern] || 'text-green-400'}`}>
+                                            {pattern.pattern.replace(/_/g, ' ')}
+                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-[8px] px-1.5 py-0.5 ${severityColors[pattern.riskLevel as keyof typeof severityColors] || 'text-green-400 bg-green-950/50'}`}>
+                                                {pattern.riskLevel}
+                                            </span>
+                                            <span className="text-[8px] text-cyan-500 font-mono">{Math.round(pattern.confidence * 100)}%</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-[9px] text-green-600 mb-1">{pattern.description}</div>
+                                    <div className="text-[8px] text-green-900 font-mono">
+                                        {pattern.mitreTactics.join(' → ')}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* PREDICTIVE MODELING TAB */}
+                    {activeTab === 'predictions' && analytics && (
+                        <div className="space-y-2">
+                            <div className="text-[10px] font-bold text-cyan-400 flex items-center gap-2 mb-2">
+                                <BarChart3 className="h-3 w-3" />
+                                EXPONENTIAL SMOOTHING FORECAST • 7-DAY HORIZON
+                            </div>
+                            {analytics.predictiveModeling.forecast.map((pred, idx) => (
+                                <div key={idx} className="bg-black/50 border border-green-900/30 p-2">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="text-[10px] font-mono text-green-400">{pred.period}</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-[8px] px-1.5 py-0.5 font-mono ${
+                                                pred.trend === 'ESCALATING' ? 'text-red-400 bg-red-950/50' :
+                                                pred.trend === 'DECLINING' ? 'text-green-400 bg-green-950/50' :
+                                                'text-yellow-400 bg-yellow-950/50'
+                                            }`}>{pred.trend}</span>
+                                            <span className="text-[8px] text-cyan-500 font-mono">{Math.round(pred.confidence * 100)}% conf</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-[9px] mb-1">
+                                        <span className="text-green-600">Predicted: <span className="text-green-400 font-mono">{pred.predictedIncidents}</span> incidents</span>
+                                        <span className="text-red-600">Critical: <span className="text-red-400 font-mono">{pred.predictedCritical}</span></span>
+                                    </div>
+                                    <div className="text-[8px] text-green-900 font-mono">{pred.riskForecast}</div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </>
+            )}
+
+            {/* Threat Classification Grid (kept from original — now backed by real data) */}
+            <div className="grid grid-cols-2 gap-3 mt-4 mb-4">
                 <div className="bg-black/50 border border-green-900/30 p-3">
                     <div className="flex items-center gap-2 mb-2">
                         <Target className="h-4 w-4 text-cyan-400" />
@@ -86,7 +282,7 @@ export function ThreatAnalyticsEngine({ cyberThreats, coordinatedAttacks }: Thre
                                         <div className="w-20 h-1.5 bg-green-950 overflow-hidden">
                                             <div
                                                 className={`h-full ${level === 'CRITICAL' ? 'bg-red-500' : level === 'HIGH' ? 'bg-orange-500' : level === 'MEDIUM' ? 'bg-yellow-500' : 'bg-green-500'}`}
-                                                style={{ width: `${(count / cyberThreats.length) * 100}%` }}
+                                                style={{ width: `${cyberThreats.length > 0 ? (count / cyberThreats.length) * 100 : 0}%` }}
                                             />
                                         </div>
                                         <span className="font-mono text-green-400 w-6">{count}</span>
@@ -142,6 +338,12 @@ export function ThreatAnalyticsEngine({ cyberThreats, coordinatedAttacks }: Thre
                         </div>
                     </div>
                 ))}
+            </div>
+
+            {/* Footer: Real-time status */}
+            <div className="mt-3 pt-2 border-t border-green-900/30 flex items-center justify-between text-[8px] text-green-900 font-mono">
+                <span>LAST REFRESH: {lastRefresh.toLocaleTimeString()}</span>
+                <span>AUTO-REFRESH: 30s</span>
             </div>
         </div>
     );
