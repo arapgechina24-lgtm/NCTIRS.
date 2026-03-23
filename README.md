@@ -20,6 +20,69 @@ This project was developed for the **National Intelligence and Research Universi
 
 ---
 
+## 🏛️ System Architecture
+
+NCTIRS is built on a tripartite Zero-Trust architecture, separating ingestion, intelligence, and execution into distinct, hardened layers.
+
+```mermaid
+graph TD
+    %% Define Styling
+    classDef layerFill fill:#001a00,stroke:#00ff41,stroke-width:2px,color:#00ff41;
+    classDef nodeFill fill:#000000,stroke:#008f11,stroke-width:1px,color:#00fa00;
+    classDef cniFill fill:#1a0000,stroke:#ff0000,stroke-width:1px,color:#ff0000;
+
+    subgraph Perception ["1. Perception Layer (Data Ingestion)"]
+        A1[IFMIS Sensors]:::cniFill
+        A2[eCitizen Logs]:::cniFill
+        A3[KRA Telemetry]:::cniFill
+        A4[ISP Border Gateway]:::cniFill
+        
+        DL[(Sovereign Data Lake\nTurso / SQLite at Edge)]:::nodeFill
+        
+        A1 --> DL
+        A2 --> DL
+        A3 --> DL
+        A4 --> DL
+    end
+
+    subgraph Cognition ["2. Cognition Layer (AI Analysis - ATAE)"]
+        B1[Z-Score Anomaly Engine\n(Payload/Frequency)]:::nodeFill
+        B2[Federated Behavioral AI\n(APT Kill-Chain Math)]:::nodeFill
+        B3[Predictive Forecaster\n(Exponential Smoothing)]:::nodeFill
+        B4[Swahili NLP Engine\n(Threat Intel Parsing)]:::nodeFill
+        
+        DL --> B1
+        DL --> B2
+        DL --> B3
+        DL --> B4
+    end
+
+    subgraph Execution ["3. Integrity Layer (Response - ARCM)"]
+        C1{AI Decision Matrix\nConfidence > 85%}:::nodeFill
+        C2[Kinetic IP Blocking\n(iptables/BGP)]:::nodeFill
+        C3[Network Isolation\n(Air-Gap/VLAN)]:::nodeFill
+        C4[Immutable Audit\n(Blockchain SHA-256)]:::nodeFill
+        C5[NC4 Compliance\n(CMCA 2018 Specs)]:::nodeFill
+        
+        B1 --> C1
+        B2 --> C1
+        B3 --> C1
+        B4 -.-> C1
+        
+        C1 -- Autoblock --> C2
+        C1 -- Quarantine --> C3
+        C2 --> C4
+        C3 --> C4
+        C1 --> C5
+    end
+
+    class Perception layerFill;
+    class Cognition layerFill;
+    class Execution layerFill;
+```
+
+---
+
 ## 🚀 Core Architectural Capabilities
 
 ### 1. Artificial Intelligence Threat Analytics Engine (ATAE)
