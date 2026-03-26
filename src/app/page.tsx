@@ -541,39 +541,111 @@ export default function Home() {
         )}
 
         {currentView === 'FUSION_CENTER' && (
-          <div className="grid grid-cols-12 gap-6 h-[calc(100vh-10rem)]">
-            {/* LEFT - Main Content */}
-            <div className="col-span-12 lg:col-span-8 flex flex-col gap-5">
-              <div className="flex-1 min-h-[300px]">
+          <div className="flex flex-col gap-6 overflow-y-auto" style={{ height: 'calc(100vh - 9rem)' }}>
+
+            {/* ══════════════════════════════════════════════════════════════════
+                HERO: Live Threat Map — Full Width Dominant View
+               ══════════════════════════════════════════════════════════════════ */}
+            <div className="flex flex-col gap-3 shrink-0">
+              <div className="flex items-center justify-between px-1">
+                <div className="text-xs text-green-500 uppercase tracking-widest font-bold flex items-center gap-2">
+                  <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                  Multi-Agency Threat Picture
+                </div>
+                <div className="text-[10px] text-green-700 font-mono">
+                  FUSION // ALL-SOURCE INTELLIGENCE OVERLAY
+                </div>
+              </div>
+              <div className="min-h-[420px] border border-green-900/50 overflow-hidden relative shadow-[0_0_30px_rgba(0,255,0,0.08)] bg-black">
                 <LiveThreatMap
                   incidents={data.incidents}
                   predictions={data.predictions}
                   surveillance={data.surveillanceFeeds}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-5">
-                <CNIHeatmap />
-                <DataLakeMonitor sources={data.dataLakeSources} />
-              </div>
             </div>
-            {/* RIGHT - Intel Sidebar */}
-            <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 overflow-y-auto">
-              {/* AI Reasoning Core — relocated from Command Hub */}
-              <div className="min-h-[320px]">
-                <AIConsole />
+
+            {/* ══════════════════════════════════════════════════════════════════
+                INTELLIGENCE ROW: AI Reasoning + Inter-Agency Comms + AI Advisor
+               ══════════════════════════════════════════════════════════════════ */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+              {/* AI Reasoning Core */}
+              <div className="flex flex-col gap-3">
+                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-cyan-500 rounded-full" />
+                  AI Reasoning Core
+                </div>
+                <div className="min-h-[340px] h-[340px]">
+                  <AIConsole />
+                </div>
               </div>
 
-              <div className="bg-black border border-green-900/50 p-4">
-                <h2 className="text-sm font-bold text-green-400 mb-3 border-b border-green-900/50 pb-2 uppercase tracking-wider">
-                  Inter-Agency Comms
-                </h2>
-                <div className="h-64 mb-4">
+              {/* Inter-Agency Comms */}
+              <div className="flex flex-col gap-3">
+                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+                  Inter-Agency Collaboration
+                </div>
+                <div className="min-h-[340px] h-[340px]">
                   <MultiplayerCanvas />
                 </div>
-                <AIAssistantPanel />
               </div>
-              <CommunityReports reports={data.communityReports} maxItems={8} />
-              <SurveillanceMonitor feeds={data.surveillanceFeeds} maxItems={5} />
+
+              {/* AI Strategic Advisor */}
+              <div className="flex flex-col gap-3">
+                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full" />
+                  AI Strategic Advisor
+                </div>
+                <div className="min-h-[340px] h-[340px]">
+                  <AIAssistantPanel />
+                </div>
+              </div>
+            </div>
+
+            {/* ══════════════════════════════════════════════════════════════════
+                DATA ROW: CNI Heatmap + Unified Data Lake + Community Intelligence
+               ══════════════════════════════════════════════════════════════════ */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+              {/* CNI Heatmap */}
+              <div className="flex flex-col gap-3">
+                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-red-500 rounded-full" />
+                  Critical National Infrastructure
+                </div>
+                <CNIHeatmap />
+              </div>
+
+              {/* Unified Data Lake */}
+              <div className="flex flex-col gap-3">
+                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full" />
+                  Unified Data Lake
+                </div>
+                <DataLakeMonitor sources={data.dataLakeSources} />
+              </div>
+
+              {/* Community Intelligence */}
+              <div className="flex flex-col gap-3">
+                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-emerald-500 rounded-full" />
+                  Community Intelligence
+                </div>
+                <CommunityReports reports={data.communityReports} maxItems={8} />
+              </div>
+            </div>
+
+            {/* ══════════════════════════════════════════════════════════════════
+                FULL WIDTH: Surveillance Network
+               ══════════════════════════════════════════════════════════════════ */}
+            <div className="flex flex-col gap-3">
+              <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full" />
+                Surveillance Network
+              </div>
+              <SurveillanceMonitor feeds={data.surveillanceFeeds} maxItems={12} />
             </div>
           </div>
         )}
