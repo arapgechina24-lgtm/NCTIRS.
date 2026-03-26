@@ -25,11 +25,16 @@ import AIAssistantPanel from "@/components/intelligence/AIAssistantPanel"
 import FederatedLearningHub from "@/components/intelligence/FederatedLearningHub"
 import ExplainableAIPanel from "@/components/intelligence/ExplainableAIPanel"
 import SovereignAIStatusPanel from "@/components/intelligence/SovereignAIStatusPanel"
+import ResponsibleAIStatement from "@/components/intelligence/ResponsibleAIStatement"
+import MLModelMetrics from "@/components/intelligence/MLModelMetrics"
 // Compliance components
 // KenyaContextPanel removed for presentation neatness
 import MultiplayerSession from "@/components/shared/MultiplayerSession"
 import DemoModeController from "@/components/shared/DemoModeController"
 import { VoiceCommandPanel } from "@/components/shared/VoiceCommandPanel"
+import GuidedDemo from "@/components/shared/GuidedDemo"
+import BeforeAfterMetrics from "@/components/shared/BeforeAfterMetrics"
+import DeploymentRoadmap from "@/components/shared/DeploymentRoadmap"
 // NEW War Room Components (Pending restructure)
 import { LiveThreatMap } from "@/components/LiveThreatMap"
 import { AIConsole } from "@/components/AIConsole"
@@ -444,6 +449,13 @@ export default function Home() {
             </div>
 
             {/* ══════════════════════════════════════════════════════════════════
+                IMPACT ROW: Before vs After Metrics — Full Width
+               ══════════════════════════════════════════════════════════════════ */}
+            <div className="flex flex-col gap-3 shrink-0">
+              <BeforeAfterMetrics />
+            </div>
+
+            {/* ══════════════════════════════════════════════════════════════════
                 SECONDARY ROW: Live Intel Feed + Threat Engine + Community Intel
                ══════════════════════════════════════════════════════════════════ */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -753,7 +765,14 @@ export default function Home() {
               </div>
 
               {/* ══════════════════════════════════════════════════════════════════
-                  ROW 2: 30-Day Incident Trends — Full Width
+                  ROW 2: ML Model Performance Metrics — Full Width
+                 ══════════════════════════════════════════════════════════════════ */}
+              <div className="flex flex-col gap-3 shrink-0">
+                <MLModelMetrics />
+              </div>
+
+              {/* ══════════════════════════════════════════════════════════════════
+                  ROW 3: 30-Day Incident Trends — Full Width
                  ══════════════════════════════════════════════════════════════════ */}
               <div className="flex flex-col gap-3 shrink-0">
                 <div className="text-xs text-cyan-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
@@ -861,6 +880,16 @@ export default function Home() {
                 <SovereignAIStatusPanel status={data.sovereignAIStatus} />
               </div>
 
+              {/* Responsible AI & Bias Statement */}
+              <div className="shrink-0">
+                <ResponsibleAIStatement />
+              </div>
+
+              {/* 90-Day Deployment Roadmap */}
+              <div className="shrink-0">
+                <DeploymentRoadmap />
+              </div>
+
               {/* Response Panel - Full Width */}
               <div className="shrink-0">
                 <AutomatedResponsePanel responses={data.automatedResponses} />
@@ -882,6 +911,10 @@ export default function Home() {
         targetAsset="SEACOM SUBMARINE CABLE - MOMBASA"
         onMitigate={handleMitigation}
         onDismiss={() => setIsEmergency(false)}
+      />
+
+      <GuidedDemo
+        onNavigate={setCurrentView}
       />
 
       <VoiceCommandPanel
