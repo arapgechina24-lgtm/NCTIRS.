@@ -653,35 +653,80 @@ export default function Home() {
 
         {
           currentView === 'THREAT_MATRIX' && (
-            <div className="grid grid-cols-12 gap-4 h-[calc(100vh-10rem)]">
-              {/* LEFT - Threat List */}
-              <div className="col-span-12 lg:col-span-4 flex flex-col gap-4 overflow-y-auto pr-1">
-                <IncidentList incidents={data.incidents} maxItems={15} />
-                <ThreatAnalyticsEngine
-                  cyberThreats={data.cyberThreats}
-                  coordinatedAttacks={data.coordinatedAttacks}
-                />
-              </div>
-              {/* RIGHT - Map & Metrics */}
-              <div className="col-span-12 lg:col-span-8 flex flex-col gap-4">
+            <div className="flex flex-col gap-6 overflow-y-auto" style={{ height: 'calc(100vh - 9rem)' }}>
+
+              {/* ══════════════════════════════════════════════════════════════════
+                  TOP: Key Metrics Bar
+                 ══════════════════════════════════════════════════════════════════ */}
+              <div className="shrink-0">
                 <KeyMetrics metrics={{
-                  threatLevel: 'CRITICAL',
-                  activeIncidents: 42,
+                  threatLevel: activeCoordinated > 0 ? 'CRITICAL' : 'HIGH',
+                  activeIncidents: data.incidents.length,
                   aiConfidence: 89.5,
                   systemLoad: 65,
-                  responsesActive: 12,
+                  responsesActive: activeResponses,
                   networkTraffic: '12 TB/s'
                 }} />
-                <div className="flex-1 bg-black border border-red-900/30 p-2 relative min-h-[300px]">
-                  <div className="absolute top-2 right-2 bg-red-900/30 text-red-500 text-[9px] px-2 py-1 font-bold uppercase tracking-wider z-10">
+              </div>
+
+              {/* ══════════════════════════════════════════════════════════════════
+                  HERO: Live Attack Vector Map — Full Width
+                 ══════════════════════════════════════════════════════════════════ */}
+              <div className="flex flex-col gap-3 shrink-0">
+                <div className="flex items-center justify-between px-1">
+                  <div className="text-xs text-red-500 uppercase tracking-widest font-bold flex items-center gap-2">
+                    <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                     Live Attack Vectors
                   </div>
+                  <div className="text-[10px] text-red-700 font-mono">
+                    THREAT_MATRIX // ACTIVE ENGAGEMENT
+                  </div>
+                </div>
+                <div className="min-h-[440px] bg-black border border-red-900/30 overflow-hidden relative shadow-[0_0_30px_rgba(220,38,38,0.08)]">
                   <LiveThreatMap
                     incidents={data.incidents}
                     predictions={data.predictions}
                     surveillance={data.surveillanceFeeds}
                   />
                 </div>
+              </div>
+
+              {/* ══════════════════════════════════════════════════════════════════
+                  INTELLIGENCE ROW: Live Threat Feed + Threat Analytics Engine
+                 ══════════════════════════════════════════════════════════════════ */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                {/* Live Threat Feed */}
+                <div className="flex flex-col gap-3">
+                  <div className="text-xs text-red-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    Live Threat Intelligence Feed
+                  </div>
+                  <LiveThreatFeed />
+                </div>
+
+                {/* Threat Analytics Engine */}
+                <div className="flex flex-col gap-3">
+                  <div className="text-xs text-amber-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                    AI Threat Correlation Engine
+                  </div>
+                  <ThreatAnalyticsEngine
+                    cyberThreats={data.cyberThreats}
+                    coordinatedAttacks={data.coordinatedAttacks}
+                  />
+                </div>
+              </div>
+
+              {/* ══════════════════════════════════════════════════════════════════
+                  FULL WIDTH: Active Security Incidents
+                 ══════════════════════════════════════════════════════════════════ */}
+              <div className="flex flex-col gap-3">
+                <div className="text-xs text-red-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  Active Security Incidents
+                </div>
+                <IncidentList incidents={data.incidents} maxItems={12} />
               </div>
             </div>
           )
