@@ -374,7 +374,7 @@ export default function Home() {
 
         {/* View Routing */}
         {currentView === 'COMMAND_CENTER' && (
-          <div className="flex flex-col gap-4 overflow-y-auto" style={{ height: 'calc(100vh - 9rem)' }}>
+          <div className="flex flex-col gap-6 overflow-y-auto" style={{ height: 'calc(100vh - 9rem)' }}>
 
             {/* TOP ROW: Metrics Bar with Emergency Button */}
             <div className="flex items-stretch gap-4 shrink-0">
@@ -398,82 +398,132 @@ export default function Home() {
               </button>
             </div>
 
-            {/* MAIN CONTENT: 3-Column Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* ══════════════════════════════════════════════════════════════════
+                HERO ROW: Infrastructure Context + God's Eye View (Primary Focal Points)
+                These two panels dominate the viewport for maximum situational awareness.
+               ══════════════════════════════════════════════════════════════════ */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 shrink-0">
 
-              {/* COLUMN 1: Infrastructure Status */}
-              <div className="flex flex-col gap-4">
+              {/* HERO LEFT: Infrastructure Context (CNI Heatmap) */}
+              <div className="lg:col-span-5 flex flex-col gap-3">
                 <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
                   <span className="w-2 h-2 bg-green-500 rounded-full" />
-                  Infrastructure & Context
+                  Infrastructure Context
                 </div>
-                <CNIHeatmap />
-                <SystemArchitecture
-                  perception={data.perceptionLayer}
-                  cognition={data.cognitionLayer}
-                  integrity={data.integrityLayer}
-                />
-                
-                {/* Replaced KenyaContextPanel with NationalRiskRegistry to unsqueeze Column 2 */}
-                <div className="h-64">
-                  <NationalRiskRegistry threats={data.cyberThreats} />
+                <div className="min-h-[480px] border border-green-900/50 bg-black shadow-[0_0_30px_rgba(0,255,0,0.08)]">
+                  <CNIHeatmap />
                 </div>
-
-                <DataLakeMonitor sources={data.dataLakeSources} />
               </div>
 
-              {/* COLUMN 2: Threat Visualization */}
-              <div className="flex flex-col gap-4">
-                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-                  Threat Visualization
-                </div>
-
-                {/* Quick Stats */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-black border border-red-900/60 p-3">
-                    <div className="text-[9px] text-red-500 uppercase tracking-wider mb-1">Critical Threats</div>
-                    <div className="text-2xl font-bold text-red-400 animate-pulse">{criticalCyber}</div>
+              {/* HERO RIGHT: Live Threat Vector God's Eye View */}
+              <div className="lg:col-span-7 flex flex-col gap-3">
+                <div className="flex items-center justify-between px-1">
+                  <div className="text-xs text-green-500 uppercase tracking-widest font-bold flex items-center gap-2">
+                    <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                    Live Threat Vector — God&apos;s Eye View
                   </div>
-                  <div className="bg-black border border-purple-900/60 p-3">
-                    <div className="text-[9px] text-purple-500 uppercase tracking-wider mb-1">Attacks Blocked</div>
-                    <div className="text-2xl font-bold text-purple-400">14.2K</div>
+                  {/* Quick Stats inline */}
+                  <div className="flex gap-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] text-red-500 uppercase tracking-wider">Critical</span>
+                      <span className="text-lg font-bold text-red-400 animate-pulse">{criticalCyber}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] text-purple-500 uppercase tracking-wider">Blocked</span>
+                      <span className="text-lg font-bold text-purple-400">14.2K</span>
+                    </div>
                   </div>
                 </div>
-
-                {/* THREAT VISUALIZATION MAP - Heatmap Powered */}
-                <div className="h-[450px] border border-green-900/50 overflow-hidden relative shadow-[0_0_20px_rgba(0,255,0,0.1)] flex flex-col">
+                <div className="min-h-[480px] border border-green-900/50 overflow-hidden relative shadow-[0_0_30px_rgba(0,255,0,0.1)] flex flex-col bg-black">
                   <LiveThreatMap
                     incidents={data.incidents}
                     predictions={data.predictions}
                     surveillance={data.surveillanceFeeds}
                   />
                 </div>
+              </div>
+            </div>
 
-                {/* Charts - Full Width Stacked */}
-                <ThreatAnalyticsChart analytics={data.threatAnalytics} />
+            {/* ══════════════════════════════════════════════════════════════════
+                SECONDARY ROW: Expanded Incidents + Live Intel Feed + Threat Engine
+               ══════════════════════════════════════════════════════════════════ */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+              {/* Expanded Recent Security Incidents */}
+              <div className="lg:col-span-5 flex flex-col gap-3">
+                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  Recent Security Incidents
+                </div>
+                <div className="min-h-[420px] max-h-[520px] overflow-y-auto">
+                  <IncidentList incidents={data.incidents} maxItems={15} />
+                </div>
               </div>
 
-              {/* COLUMN 3: Intelligence & Response */}
-              <div className="flex flex-col gap-4">
+              {/* Live Threat Feed */}
+              <div className="lg:col-span-4 flex flex-col gap-3">
                 <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
                   <span className="w-2 h-2 bg-cyan-500 rounded-full" />
                   Live Threat Intelligence
                 </div>
-
                 <LiveThreatFeed />
-
                 <ThreatAnalyticsEngine
                   cyberThreats={data.cyberThreats}
                   coordinatedAttacks={data.coordinatedAttacks}
                 />
-
-                <IncidentList incidents={data.incidents} maxItems={8} />
-                <CommunityReports reports={data.communityReports} maxItems={5} />
-
-                <AIConsole />
               </div>
 
+              {/* Community Reports */}
+              <div className="lg:col-span-3 flex flex-col gap-3">
+                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full" />
+                  Community Intelligence
+                </div>
+                <CommunityReports reports={data.communityReports} maxItems={8} />
+              </div>
+            </div>
+
+            {/* ══════════════════════════════════════════════════════════════════
+                TERTIARY ROW: Architecture | Risk Registry | Data Lake (Secondary Panels)
+               ══════════════════════════════════════════════════════════════════ */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+              {/* NCTIRS Three-Layer Architecture */}
+              <div className="flex flex-col gap-3">
+                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-emerald-500 rounded-full" />
+                  NCTIRS Three-Layer Architecture
+                </div>
+                <div className="min-h-[280px]">
+                  <SystemArchitecture
+                    perception={data.perceptionLayer}
+                    cognition={data.cognitionLayer}
+                    integrity={data.integrityLayer}
+                  />
+                </div>
+              </div>
+
+              {/* National Risk Registry */}
+              <div className="flex flex-col gap-3">
+                <div className="text-xs text-red-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  National Risk Registry
+                </div>
+                <div className="min-h-[280px]">
+                  <NationalRiskRegistry threats={data.cyberThreats} />
+                </div>
+              </div>
+
+              {/* Unified Data Lake */}
+              <div className="flex flex-col gap-3">
+                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full" />
+                  Unified Data Lake
+                </div>
+                <div className="min-h-[280px]">
+                  <DataLakeMonitor sources={data.dataLakeSources} />
+                </div>
+              </div>
             </div>
 
             {/* FULL WIDTH: Surveillance Network */}
@@ -484,9 +534,9 @@ export default function Home() {
         )}
 
         {currentView === 'FUSION_CENTER' && (
-          <div className="grid grid-cols-12 gap-4 h-[calc(100vh-10rem)]">
+          <div className="grid grid-cols-12 gap-6 h-[calc(100vh-10rem)]">
             {/* LEFT - Main Content */}
-            <div className="col-span-12 lg:col-span-8 flex flex-col gap-4">
+            <div className="col-span-12 lg:col-span-8 flex flex-col gap-5">
               <div className="flex-1 min-h-[300px]">
                 <LiveThreatMap
                   incidents={data.incidents}
@@ -494,13 +544,18 @@ export default function Home() {
                   surveillance={data.surveillanceFeeds}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-5">
                 <CNIHeatmap />
                 <DataLakeMonitor sources={data.dataLakeSources} />
               </div>
             </div>
             {/* RIGHT - Intel Sidebar */}
-            <div className="col-span-12 lg:col-span-4 flex flex-col gap-4 overflow-y-auto">
+            <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 overflow-y-auto">
+              {/* AI Reasoning Core — relocated from Command Hub */}
+              <div className="min-h-[320px]">
+                <AIConsole />
+              </div>
+
               <div className="bg-black border border-green-900/50 p-4">
                 <h2 className="text-sm font-bold text-green-400 mb-3 border-b border-green-900/50 pb-2 uppercase tracking-wider">
                   Inter-Agency Comms
@@ -555,32 +610,46 @@ export default function Home() {
 
         {
           currentView === 'ANALYTICS' && (
-            <div className="grid grid-cols-12 gap-4 h-[calc(100vh-10rem)]">
-              {/* LEFT - Charts */}
-              <div className="col-span-12 lg:col-span-8 flex flex-col gap-4">
-                <div className="h-80">
-                  <ThreatAnalyticsChart analytics={data.threatAnalytics} />
+            <div className="flex flex-col gap-6 overflow-y-auto" style={{ height: 'calc(100vh - 9rem)' }}>
+              {/* Regional Threat Analysis — relocated from Command Hub as primary analytics view */}
+              <div className="flex flex-col gap-3">
+                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full" />
+                  Regional Threat Analysis
                 </div>
-                <div className="h-80">
-                  <IncidentTrendsChart data={data.timeSeriesData} />
-                </div>
+                <ThreatAnalyticsChart analytics={data.threatAnalytics} />
               </div>
-              {/* RIGHT - Sidebar */}
-              <div className="col-span-12 lg:col-span-4 flex flex-col gap-4">
-                <ThreatAnalyticsEngine
-                  cyberThreats={data.cyberThreats}
-                  coordinatedAttacks={data.coordinatedAttacks}
-                />
-                <DataLakeMonitor sources={data.dataLakeSources} />
-                <div className="bg-black border border-blue-900/50 p-4 flex-1">
-                  <h3 className="text-blue-400 font-bold mb-3 text-sm uppercase tracking-wider">Predictive Models</h3>
-                  <div className="space-y-3">
-                    {data.predictions.slice(0, 5).map((p, i) => (
-                      <div key={i} className="flex justify-between items-center text-xs border-b border-blue-900/20 pb-2">
-                        <span className="text-gray-400 truncate mr-2">{p.crimeTypes.join(', ')}</span>
-                        <span className="text-blue-400 font-mono">{(p.probability * 100).toFixed(1)}%</span>
-                      </div>
-                    ))}
+
+              <div className="grid grid-cols-12 gap-6">
+                {/* LEFT - Incident Trends */}
+                <div className="col-span-12 lg:col-span-8 flex flex-col gap-5">
+                  <div className="flex flex-col gap-3">
+                    <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-cyan-500 rounded-full" />
+                      Incident Trend Analysis
+                    </div>
+                    <div className="h-80">
+                      <IncidentTrendsChart data={data.timeSeriesData} />
+                    </div>
+                  </div>
+                </div>
+                {/* RIGHT - Sidebar */}
+                <div className="col-span-12 lg:col-span-4 flex flex-col gap-5">
+                  <ThreatAnalyticsEngine
+                    cyberThreats={data.cyberThreats}
+                    coordinatedAttacks={data.coordinatedAttacks}
+                  />
+                  <DataLakeMonitor sources={data.dataLakeSources} />
+                  <div className="bg-black border border-blue-900/50 p-4 flex-1">
+                    <h3 className="text-blue-400 font-bold mb-3 text-sm uppercase tracking-wider">Predictive Models</h3>
+                    <div className="space-y-3">
+                      {data.predictions.slice(0, 5).map((p, i) => (
+                        <div key={i} className="flex justify-between items-center text-xs border-b border-blue-900/20 pb-2">
+                          <span className="text-gray-400 truncate mr-2">{p.crimeTypes.join(', ')}</span>
+                          <span className="text-blue-400 font-mono">{(p.probability * 100).toFixed(1)}%</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
