@@ -30,8 +30,9 @@ async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
             return await fn();
-        } catch (err: any) {
-            const isTransient = err?.cause?.code === 'ECONNRESET' || err?.message?.includes('fetch failed');
+        } catch (err: unknown) {
+            const error = err as { cause?: { code?: string }; message?: string };
+            const isTransient = error?.cause?.code === 'ECONNRESET' || error?.message?.includes('fetch failed');
             if (isTransient && attempt < maxRetries) {
                 const delay = attempt * 2000; // 2s, 4s, 6s backoff
                 process.stdout.write(`\n⚠️  Network error, retrying in ${delay / 1000}s (attempt ${attempt}/${maxRetries})...\n`);

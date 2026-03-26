@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Switch } from "@/components/ui/switch"
-import { Shield, ShieldAlert, Wifi, WifiOff } from "lucide-react"
+import { Wifi, WifiOff } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface SovereignToggleProps {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Card } from "@/components/ui/card"
-import { Terminal, Cpu, Lock, Activity, ShieldAlert, Wifi } from "lucide-react"
+import { Terminal, Cpu, Lock, Activity } from "lucide-react"
 
 interface LogEntry {
     id: string;
@@ -43,18 +43,15 @@ const REASONING_CHAINS = [
 ];
 
 export function AIConsole() {
-    const [logs, setLogs] = useState<LogEntry[]>([])
+    const [logs, setLogs] = useState<LogEntry[]>(() => [
+        { id: 'init-1', text: "NEURAL CORE INITIALIZED...", color: "text-green-600", timestamp: new Date().toLocaleTimeString() },
+        { id: 'init-2', text: "CONNECTING TO KDF-SAT-1...", color: "text-green-600", timestamp: new Date().toLocaleTimeString() },
+        { id: 'init-3', text: "DEFENSIVE SUB-ROUTINES ACTIVE.", color: "text-green-500", timestamp: new Date().toLocaleTimeString() }
+    ])
     const scrollRef = useRef<HTMLDivElement>(null)
     const processingRef = useRef(false)
 
     useEffect(() => {
-        // Initial logs
-        setLogs([
-            { id: 'init-1', text: "NEURAL CORE INITIALIZED...", color: "text-green-600", timestamp: new Date().toLocaleTimeString() },
-            { id: 'init-2', text: "CONNECTING TO KDF-SAT-1...", color: "text-green-600", timestamp: new Date().toLocaleTimeString() },
-            { id: 'init-3', text: "DEFENSIVE SUB-ROUTINES ACTIVE.", color: "text-green-500", timestamp: new Date().toLocaleTimeString() }
-        ])
-
         const triggerChain = async () => {
             if (processingRef.current) return;
             processingRef.current = true;

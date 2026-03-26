@@ -68,9 +68,9 @@ export function LiveThreatFeed() {
     }, [isLive]);
 
     useEffect(() => {
-        fetchLiveFeed(); // Initial fetch
+        const timer = setTimeout(fetchLiveFeed, 0); // Deferred initial fetch
         const interval = setInterval(fetchLiveFeed, 5000); // Every 5 seconds
-        return () => clearInterval(interval);
+        return () => { clearTimeout(timer); clearInterval(interval); };
     }, [fetchLiveFeed]);
 
     const formatTime = (ts: string) => {

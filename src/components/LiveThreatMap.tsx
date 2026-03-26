@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { SecurityIncident, CrimePrediction, SurveillanceFeed } from "@/lib/mockData"
 import { Activity, Shield, Wifi, Zap, Eye } from "lucide-react"
@@ -13,6 +13,7 @@ interface LiveThreatMapProps {
 
 export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThreatMapProps) {
     const mapRef = useRef<HTMLDivElement>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mapInstanceRef = useRef<any>(null);
     const [activeLayers, setActiveLayers] = useState({
         threats: true,
@@ -57,7 +58,7 @@ export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThre
             const L = (await import('leaflet')).default;
             // Provide global \`L\` for plugins before importing them
             if (typeof window !== 'undefined') {
-                // @ts-ignore
+                // @ts-expect-error - Leaflet global injection for plugins
                 window.L = L;
             }
             // @ts-expect-error - Leaflet CSS import issue
@@ -159,7 +160,7 @@ export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThre
                     ];
                 });
 
-                // @ts-ignore - heatLayer is attached to L by leaflet.heat
+                // @ts-expect-error - heatLayer is attached to L by leaflet.heat
                 L.heatLayer(heatPoints as [number, number, number][], {
                     radius: 35,
                     blur: 25,
@@ -283,7 +284,7 @@ export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThre
             <CardHeader className="py-3 px-4 flex flex-row items-center justify-between border-b border-green-900/30 bg-black/40 z-10">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-green-400">
                     <Activity className="h-4 w-4 animate-pulse" />
-                    LIVE THREAT VECTORS // GOD'S EYE VIEW
+                    LIVE THREAT VECTORS // GOD&apos;S EYE VIEW
                 </CardTitle>
 
                 {/* Layer Controls */}
@@ -341,7 +342,15 @@ export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThre
     )
 }
 
-function LayerToggle({ active, onClick, icon, label, color }: any) {
+interface LayerToggleProps {
+    active: boolean;
+    onClick: () => void;
+    icon: React.ReactNode;
+    label: string;
+    color: string;
+}
+
+function LayerToggle({ active, onClick, icon, label, color }: LayerToggleProps) {
     return (
         <button
             onClick={onClick}

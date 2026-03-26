@@ -5,7 +5,6 @@ import { useState, useEffect } from "react"
 import { Header } from "@/components/layout/Header"
 // Threat components
 import { ThreatAnalyticsChart } from "@/components/threat/ThreatAnalyticsChart"
-import { ThreatMap } from "@/components/threat/ThreatMap"
 import { ThreatMonitor } from "@/components/threat/ThreatMonitor"
 import { ThreatAnalyticsEngine } from "@/components/threat/ThreatAnalyticsEngine"
 import AdversarialDefensePanel from "@/components/threat/AdversarialDefensePanel"

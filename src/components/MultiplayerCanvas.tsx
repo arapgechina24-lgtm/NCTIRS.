@@ -1,9 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import * as Ably from 'ably'
-import { AblyProvider, useChannel, usePresence } from 'ably/react'
-import { Send, Users, Activity, ShieldCheck, MousePointer2 } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Send, Users, MousePointer2 } from 'lucide-react'
 
 // Types
 interface Cursor {
@@ -48,10 +46,55 @@ export function MultiplayerCanvas() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [inputText, setInputText] = useState('');
     const [connectionStatus, setConnectionStatus] = useState<'CONNECTING' | 'CONNECTED' | 'SIMULATION'>('CONNECTING');
-    const [myId] = useState(`local-${Math.random().toString(36).substr(2, 5)}`);
 
-    // Simulation Ref
-    const simulationTime = useRef(0);
+    const addMessage = (user: string, agency: string, text: string) => {
+        setMessages(prev => [...prev, {
+            id: Math.random().toString(36),
+            user,
+            agency,
+            text,
+            timestamp: new Date().toLocaleTimeString()
+        }]);
+    };
+
+    const addSystemMessage = (text: string) => {
+        setMessages(prev => [...prev, {
+            id: Math.random().toString(36),
+            user: 'SYSTEM',
+            agency: '',
+            text,
+            timestamp: new Date().toLocaleTimeString(),
+            isSystem: true
+        }]);
+    };
+
+    const executeGhostStep = useCallback((step: typeof GHOST_SCRIPT[number]) => {
+        if (step.type === 'join') {
+            const agent = GHOST_AGENTS[step.agentIdx];
+            setCursors(prev => {
+                if (prev.find(c => c.name === agent.name)) return prev;
+                return [...prev, {
+                    id: `ghost-${step.agentIdx}`,
+                    name: agent.name,
+                    agency: agent.agency,
+                    color: agent.color,
+                    x: Math.random() * 80 + 10,
+                    y: Math.random() * 80 + 10
+                }];
+            });
+            addSystemMessage(`${agent.name} (${agent.agency}) joined the session.`);
+        } else if (step.type === 'chat') {
+            const agent = GHOST_AGENTS[step.agentIdx];
+            addMessage(agent.name, agent.agency, step.text || '');
+        } else if (step.type === 'move') {
+            setCursors(prev => prev.map((c, i) => {
+                if (i === step.agentIdx) return { ...c, x: step.x ?? c.x, y: step.y ?? c.y };
+                return c;
+            }));
+        } else if (step.type === 'system') {
+            addSystemMessage(step.text || '');
+        }
+    }, []);
 
     // Initialize Simulation (Fallback)
     useEffect(() => {
@@ -99,56 +142,7 @@ export function MultiplayerCanvas() {
 
         const timer = setTimeout(startSimulation, 1000); // 1s connection timeout simulation
         return () => clearTimeout(timer);
-    }, []);
-
-    const executeGhostStep = (step: any) => {
-        if (step.type === 'join') {
-            const agent = GHOST_AGENTS[step.agentIdx];
-            setCursors(prev => {
-                if (prev.find(c => c.name === agent.name)) return prev;
-                return [...prev, {
-                    id: `ghost-${step.agentIdx}`,
-                    name: agent.name,
-                    agency: agent.agency,
-                    color: agent.color,
-                    x: Math.random() * 80 + 10,
-                    y: Math.random() * 80 + 10
-                }];
-            });
-            addSystemMessage(`${agent.name} (${agent.agency}) joined the session.`);
-        } else if (step.type === 'chat') {
-            const agent = GHOST_AGENTS[step.agentIdx];
-            addMessage(agent.name, agent.agency, step.text);
-        } else if (step.type === 'move') {
-            setCursors(prev => prev.map((c, i) => {
-                if (i === step.agentIdx) return { ...c, x: step.x, y: step.y };
-                return c;
-            }));
-        } else if (step.type === 'system') {
-            addSystemMessage(step.text);
-        }
-    };
-
-    const addMessage = (user: string, agency: string, text: string) => {
-        setMessages(prev => [...prev, {
-            id: Math.random().toString(36),
-            user,
-            agency,
-            text,
-            timestamp: new Date().toLocaleTimeString()
-        }]);
-    };
-
-    const addSystemMessage = (text: string) => {
-        setMessages(prev => [...prev, {
-            id: Math.random().toString(36),
-            user: 'SYSTEM',
-            agency: '',
-            text,
-            timestamp: new Date().toLocaleTimeString(),
-            isSystem: true
-        }]);
-    };
+    }, [executeGhostStep]);
 
     const handleSend = () => {
         if (!inputText.trim()) return;

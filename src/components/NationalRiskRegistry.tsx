@@ -1,7 +1,7 @@
 'use client'
 
 import { CyberThreat } from '@/lib/mockData'
-import { AlertTriangle, ShieldAlert, Target, Zap } from 'lucide-react'
+import { ShieldAlert, Target, Zap } from 'lucide-react'
 
 interface NationalRiskRegistryProps {
     threats: CyberThreat[]
