@@ -17,13 +17,16 @@ export function IncidentList({ incidents, maxItems = 10 }: IncidentListProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <AlertCircle className="h-5 w-5 text-red-600" />
-          Recent Security Incidents
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-red-600" />
+            Recent Security Incidents
+          </div>
+          <span className="text-[10px] text-green-700 font-mono font-normal">{displayIncidents.length} ACTIVE</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {displayIncidents.map((incident) => (
             <div
               key={incident.id}

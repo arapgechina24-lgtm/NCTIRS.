@@ -445,28 +445,25 @@ export default function Home() {
             </div>
 
             {/* ══════════════════════════════════════════════════════════════════
-                SECONDARY ROW: Expanded Incidents + Live Intel Feed + Threat Engine
+                SECONDARY ROW: Live Intel Feed + Threat Engine + Community Intel
                ══════════════════════════════════════════════════════════════════ */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-              {/* Expanded Recent Security Incidents */}
-              <div className="lg:col-span-5 flex flex-col gap-3">
-                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                  Recent Security Incidents
-                </div>
-                <div className="min-h-[420px] max-h-[520px] overflow-y-auto">
-                  <IncidentList incidents={data.incidents} maxItems={15} />
-                </div>
-              </div>
-
               {/* Live Threat Feed */}
-              <div className="lg:col-span-4 flex flex-col gap-3">
+              <div className="lg:col-span-5 flex flex-col gap-3">
                 <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
                   <span className="w-2 h-2 bg-cyan-500 rounded-full" />
                   Live Threat Intelligence
                 </div>
                 <LiveThreatFeed />
+              </div>
+
+              {/* Threat Analytics Engine */}
+              <div className="lg:col-span-4 flex flex-col gap-3">
+                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                  Threat Correlation Engine
+                </div>
                 <ThreatAnalyticsEngine
                   cyberThreats={data.cyberThreats}
                   coordinatedAttacks={data.coordinatedAttacks}
@@ -524,6 +521,17 @@ export default function Home() {
                   <DataLakeMonitor sources={data.dataLakeSources} />
                 </div>
               </div>
+            </div>
+
+            {/* ══════════════════════════════════════════════════════════════════
+                FULL WIDTH: Recent Security Incidents — Bottom Panel
+               ══════════════════════════════════════════════════════════════════ */}
+            <div className="flex flex-col gap-3">
+              <div className="text-xs text-red-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                Recent Security Incidents
+              </div>
+              <IncidentList incidents={data.incidents} maxItems={12} />
             </div>
 
             {/* FULL WIDTH: Surveillance Network */}
