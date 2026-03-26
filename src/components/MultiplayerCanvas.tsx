@@ -69,7 +69,7 @@ export function MultiplayerCanvas() {
     };
 
     const executeGhostStep = useCallback((step: typeof GHOST_SCRIPT[number]) => {
-        if (step.type === 'join') {
+        if (step.type === 'join' && step.agentIdx !== undefined) {
             const agent = GHOST_AGENTS[step.agentIdx];
             setCursors(prev => {
                 if (prev.find(c => c.name === agent.name)) return prev;
@@ -83,10 +83,10 @@ export function MultiplayerCanvas() {
                 }];
             });
             addSystemMessage(`${agent.name} (${agent.agency}) joined the session.`);
-        } else if (step.type === 'chat') {
+        } else if (step.type === 'chat' && step.agentIdx !== undefined) {
             const agent = GHOST_AGENTS[step.agentIdx];
             addMessage(agent.name, agent.agency, step.text || '');
-        } else if (step.type === 'move') {
+        } else if (step.type === 'move' && step.agentIdx !== undefined) {
             setCursors(prev => prev.map((c, i) => {
                 if (i === step.agentIdx) return { ...c, x: step.x ?? c.x, y: step.y ?? c.y };
                 return c;

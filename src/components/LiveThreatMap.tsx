@@ -58,10 +58,9 @@ export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThre
             const L = (await import('leaflet')).default;
             // Provide global \`L\` for plugins before importing them
             if (typeof window !== 'undefined') {
-                // @ts-expect-error - Leaflet global injection for plugins
-                window.L = L;
+                (window as unknown as Record<string, unknown>).L = L;
             }
-            // @ts-expect-error - Leaflet CSS import issue
+            // @ts-expect-error - Leaflet CSS dynamic import has no type declarations
             await import('leaflet/dist/leaflet.css');
             // No types needed for runtime injection
             await import('leaflet.heat');
@@ -160,7 +159,6 @@ export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThre
                     ];
                 });
 
-                // @ts-expect-error - heatLayer is attached to L by leaflet.heat
                 L.heatLayer(heatPoints as [number, number, number][], {
                     radius: 35,
                     blur: 25,

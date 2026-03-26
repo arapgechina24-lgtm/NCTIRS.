@@ -95,7 +95,7 @@ async function main() {
 
         // Insert batch with retry
         for (const data of incidentsToCreate) {
-            const incident = await withRetry(() => prisma.incident.create({ data }));
+            const incident = await withRetry(() => prisma.incident.create({ data })) as { id: string };
             
             // Link a threat 60% of the time based on MITRE
             if (Math.random() > 0.4) {
