@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from "react"
-import { Shield, Ban, Truck, Bell, Lock, FileCheck, Zap, Clock, CheckCircle, XCircle, Loader, UserCheck, AlertOctagon } from "lucide-react"
+import { Shield, Ban, Truck, Bell, Lock, FileCheck, Zap, Clock, CheckCircle, XCircle, Loader, UserCheck, AlertOctagon, FileDown } from "lucide-react"
 import { AutomatedResponse, ResponseType } from "@/lib/mockData"
+import { downloadPDF, generateReportHash } from "@/lib/pdfExport"
+import type { ReportData } from "@/lib/pdfExport"
 
 interface AutomatedResponsePanelProps {
     responses: AutomatedResponse[];
@@ -55,6 +57,47 @@ export function AutomatedResponsePanel({ responses }: AutomatedResponsePanelProp
 
     const handleDeny = (id: string) => {
         setPendingActions(prev => prev.filter(a => a.id !== id));
+    };
+
+    const handleDownloadReport = (response: AutomatedResponse) => {
+        const reportData: ReportData = {
+            title: 'NC4 Automated Response Report',
+            classification: 'SECRET',
+            date: new Date().toLocaleDateString('en-KE', { dateStyle: 'full' }),
+            author: 'NCTIRS SOAR Engine',
+            agency: 'National Intelligence Service - Cyber Command',
+            incident: {
+                id: response.id,
+                title: `${response.responseType.replace(/_/g, ' ')} - Automated Response`,
+                type: response.responseType,
+                severity: 'CRITICAL',
+                status: response.status,
+                description: response.description,
+                detectedAt: new Date(response.timestamp).toLocaleString('en-KE'),
+                targetAsset: response.targetSystem || 'N/A',
+            },
+            actions: [{
+                protocol: `${response.responseType.replace(/_/g, ' ')} executed via SOAR engine`,
+                status: response.status,
+                executedAt: new Date(response.timestamp).toLocaleString('en-KE'),
+            }, {
+                protocol: `Execution completed in ${response.executionTimeMs}ms`,
+                status: 'COMPLETED',
+                executedAt: new Date(response.timestamp).toLocaleString('en-KE'),
+            }, {
+                protocol: `Coordinating agencies notified: ${response.coordinatingAgencies.join(', ')}`,
+                status: 'COMPLETED',
+                executedAt: new Date(response.timestamp).toLocaleString('en-KE'),
+            }],
+            recommendations: [
+                'Verify containment integrity within 30 minutes of execution.',
+                'Escalate to NC4 if threat resurfaces within 24 hours.',
+                'Preserve forensic evidence for potential prosecution under CMCA 2018.',
+                'Schedule post-incident review with coordinating agencies.',
+            ],
+            hash: generateReportHash(response.id),
+        }
+        downloadPDF(reportData, `SOAR_Report_${response.id}_${new Date().toISOString().split('T')[0]}.pdf`)
     };
 
     const cyberResponses = responses.filter(r =>
@@ -172,7 +215,19 @@ export function AutomatedResponsePanel({ responses }: AutomatedResponsePanelProp
                                     <div className="text-[9px] text-green-600">{response.description}</div>
                                     <div className="flex items-center justify-between mt-1 text-[8px] text-green-900 font-mono">
                                         <span>{response.targetSystem}</span>
-                                        <span>{response.executionTimeMs}ms</span>
+                                        <div className="flex items-center gap-2">
+                                            <span>{response.executionTimeMs}ms</span>
+                                            {response.status === 'COMPLETED' && (
+                                                <button
+                                                    onClick={() => handleDownloadReport(response)}
+                                                    className="flex items-center gap-1 px-1.5 py-0.5 border border-cyan-800/50 bg-cyan-950/30 text-cyan-400 hover:bg-cyan-900/40 transition-all"
+                                                    title="Download SOAR Report"
+                                                >
+                                                    <FileDown className="h-2.5 w-2.5" />
+                                                    <span className="text-[7px] font-bold">REPORT</span>
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             );
@@ -222,8 +277,18 @@ export function AutomatedResponsePanel({ responses }: AutomatedResponsePanelProp
                                             {response.unitsDispatched} units dispatched
                                         </div>
                                     )}
-                                    <div className="text-[8px] text-green-900 font-mono mt-1">
-                                        {response.coordinatingAgencies.join(' • ')}
+                                    <div className="flex items-center justify-between mt-1 text-[8px] text-green-900 font-mono">
+                                        <span>{response.coordinatingAgencies.join(' \u2022 ')}</span>
+                                        {response.status === 'COMPLETED' && (
+                                            <button
+                                                onClick={() => handleDownloadReport(response)}
+                                                className="flex items-center gap-1 px-1.5 py-0.5 border border-cyan-800/50 bg-cyan-950/30 text-cyan-400 hover:bg-cyan-900/40 transition-all"
+                                                title="Download SOAR Report"
+                                            >
+                                                <FileDown className="h-2.5 w-2.5" />
+                                                <span className="text-[7px] font-bold">REPORT</span>
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             );
