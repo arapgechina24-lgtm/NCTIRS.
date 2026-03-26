@@ -735,46 +735,97 @@ export default function Home() {
         {
           currentView === 'ANALYTICS' && (
             <div className="flex flex-col gap-6 overflow-y-auto" style={{ height: 'calc(100vh - 9rem)' }}>
-              {/* Regional Threat Analysis — relocated from Command Hub as primary analytics view */}
-              <div className="flex flex-col gap-3">
-                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full" />
-                  Regional Threat Analysis
+
+              {/* ══════════════════════════════════════════════════════════════════
+                  HERO: Regional Threat Analysis — Full Width
+                 ══════════════════════════════════════════════════════════════════ */}
+              <div className="flex flex-col gap-3 shrink-0">
+                <div className="flex items-center justify-between px-1">
+                  <div className="text-xs text-green-500 uppercase tracking-widest font-bold flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
+                    Regional Threat Analysis
+                  </div>
+                  <div className="text-[10px] text-green-700 font-mono">
+                    AI INSIGHTS // STATISTICAL OVERVIEW
+                  </div>
                 </div>
                 <ThreatAnalyticsChart analytics={data.threatAnalytics} />
               </div>
 
-              <div className="grid grid-cols-12 gap-6">
-                {/* LEFT - Incident Trends */}
-                <div className="col-span-12 lg:col-span-8 flex flex-col gap-5">
-                  <div className="flex flex-col gap-3">
-                    <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
-                      <span className="w-2 h-2 bg-cyan-500 rounded-full" />
-                      Incident Trend Analysis
-                    </div>
-                    <div className="h-80">
-                      <IncidentTrendsChart data={data.timeSeriesData} />
-                    </div>
-                  </div>
+              {/* ══════════════════════════════════════════════════════════════════
+                  ROW 2: 30-Day Incident Trends — Full Width
+                 ══════════════════════════════════════════════════════════════════ */}
+              <div className="flex flex-col gap-3 shrink-0">
+                <div className="text-xs text-cyan-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-cyan-500 rounded-full" />
+                  30-Day Incident Trend Analysis
                 </div>
-                {/* RIGHT - Sidebar */}
-                <div className="col-span-12 lg:col-span-4 flex flex-col gap-5">
+                <div className="min-h-[360px]">
+                  <IncidentTrendsChart data={data.timeSeriesData} />
+                </div>
+              </div>
+
+              {/* ══════════════════════════════════════════════════════════════════
+                  ROW 3: AI Threat Engine + Predictive Models + Data Lake
+                 ══════════════════════════════════════════════════════════════════ */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                {/* AI Threat Correlation Engine */}
+                <div className="flex flex-col gap-3">
+                  <div className="text-xs text-amber-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                    AI Threat Correlation Engine
+                  </div>
                   <ThreatAnalyticsEngine
                     cyberThreats={data.cyberThreats}
                     coordinatedAttacks={data.coordinatedAttacks}
                   />
-                  <DataLakeMonitor sources={data.dataLakeSources} />
-                  <div className="bg-black border border-blue-900/50 p-4 flex-1">
-                    <h3 className="text-blue-400 font-bold mb-3 text-sm uppercase tracking-wider">Predictive Models</h3>
+                </div>
+
+                {/* Predictive Models */}
+                <div className="flex flex-col gap-3">
+                  <div className="text-xs text-blue-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-blue-500 rounded-full" />
+                    Predictive Forecasting Models
+                  </div>
+                  <div className="bg-black border border-blue-900/50 p-4 flex-1 shadow-[0_0_20px_rgba(59,130,246,0.05)]">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="text-[10px] text-blue-700 font-mono uppercase">Exponential Smoothing + Linear Regression</div>
+                      <div className="text-[9px] bg-blue-950/30 text-blue-400 px-2 py-0.5 border border-blue-900/30">7-DAY HORIZON</div>
+                    </div>
                     <div className="space-y-3">
-                      {data.predictions.slice(0, 5).map((p, i) => (
+                      {data.predictions.slice(0, 8).map((p, i) => (
                         <div key={i} className="flex justify-between items-center text-xs border-b border-blue-900/20 pb-2">
-                          <span className="text-gray-400 truncate mr-2">{p.crimeTypes.join(', ')}</span>
-                          <span className="text-blue-400 font-mono">{(p.probability * 100).toFixed(1)}%</span>
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${p.probability > 0.7 ? 'bg-red-500' : p.probability > 0.4 ? 'bg-amber-500' : 'bg-green-500'}`} />
+                            <span className="text-gray-400 truncate">{p.crimeTypes.join(', ')}</span>
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0 ml-2">
+                            <div className="w-16 h-1.5 bg-gray-900 overflow-hidden">
+                              <div
+                                className={`h-full ${p.probability > 0.7 ? 'bg-red-500' : p.probability > 0.4 ? 'bg-amber-500' : 'bg-green-500'}`}
+                                style={{ width: `${p.probability * 100}%` }}
+                              />
+                            </div>
+                            <span className="text-blue-400 font-mono w-12 text-right">{(p.probability * 100).toFixed(1)}%</span>
+                          </div>
                         </div>
                       ))}
                     </div>
+                    <div className="mt-4 pt-3 border-t border-blue-900/20 flex justify-between text-[9px] text-blue-800 font-mono uppercase">
+                      <span>Model Confidence: 94.2%</span>
+                      <span>Last Retrained: 2h ago</span>
+                    </div>
                   </div>
+                </div>
+
+                {/* Unified Data Lake */}
+                <div className="flex flex-col gap-3">
+                  <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-blue-500 rounded-full" />
+                    Unified Data Lake
+                  </div>
+                  <DataLakeMonitor sources={data.dataLakeSources} />
                 </div>
               </div>
             </div>
