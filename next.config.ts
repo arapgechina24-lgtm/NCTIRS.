@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   // cacheComponents: true, // Partial Prerendering (PPR) in Next.js 16
   async headers() {
     return [

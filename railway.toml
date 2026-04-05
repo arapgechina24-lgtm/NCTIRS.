@@ -2,10 +2,10 @@
 # https://docs.railway.com/reference/config-as-code
 
 [build]
-buildCommand = "npm ci && npx prisma generate && npm run build"
+buildCommand = "npm ci && npx prisma generate && npm run build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/"
 
 [deploy]
-startCommand = "npm run start"
+startCommand = "node .next/standalone/server.js"
 healthcheckPath = "/"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
