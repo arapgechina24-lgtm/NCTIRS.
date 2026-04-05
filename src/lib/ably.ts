@@ -7,7 +7,7 @@ export const getAblyClient = () => {
 
     if (!ablyInstance) {
         const apiKey = process.env.NEXT_PUBLIC_ABLY_API_KEY;
-        if (!apiKey) {
+        if (!apiKey || apiKey === 'your-ably-api-key' || apiKey === 'your-key' || !apiKey.includes('.')) {
             console.warn('Ably API Key missing, falling back to simulation mode.');
             return null;
         }

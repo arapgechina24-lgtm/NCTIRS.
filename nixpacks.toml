@@ -3,3 +3,4 @@ nixPkgs = ["nodejs_20"]
 
 [variables]
 NIXPACKS_NODE_VERSION = "20"
+NPM_CONFIG_PRODUCTION = "false"
