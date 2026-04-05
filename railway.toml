@@ -2,7 +2,7 @@
 # https://docs.railway.com/reference/config-as-code
 
 [build]
-buildCommand = "NODE_ENV=development npm ci && npx prisma generate && NODE_ENV=production npm run build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/"
+buildCommand = "npm install && npx prisma generate && npm run build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/"
 
 [deploy]
 startCommand = "node .next/standalone/server.js"
