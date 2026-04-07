@@ -54,7 +54,6 @@ export interface DBIncident {
     indicators: string | null
     createdAt: string
     updatedAt: string
-    detectedAt: string
     resolvedAt: string | null
     createdById: string | null
 }
