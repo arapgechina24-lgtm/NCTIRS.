@@ -13,9 +13,7 @@ import { IncidentList } from "@/components/incident/IncidentList"
 import { IncidentTrendsChart } from "@/components/incident/IncidentTrendsChart"
 import EmergencyOverlay from "@/components/incident/EmergencyOverlay"
 import { AutomatedResponsePanel } from "@/components/incident/AutomatedResponsePanel"
-// Surveillance components
-import { SurveillanceMonitor } from "@/components/surveillance/SurveillanceMonitor"
-import { CommunityReports } from "@/components/surveillance/CommunityReports"
+
 // Infrastructure components
 import { DataLakeMonitor } from "@/components/infrastructure/DataLakeMonitor"
 import { SystemArchitecture } from "@/components/infrastructure/SystemArchitecture"
@@ -25,7 +23,7 @@ import AIAssistantPanel from "@/components/intelligence/AIAssistantPanel"
 import FederatedLearningHub from "@/components/intelligence/FederatedLearningHub"
 import ExplainableAIPanel from "@/components/intelligence/ExplainableAIPanel"
 import SovereignAIStatusPanel from "@/components/intelligence/SovereignAIStatusPanel"
-import ResponsibleAIStatement from "@/components/intelligence/ResponsibleAIStatement"
+
 import MLModelMetrics from "@/components/intelligence/MLModelMetrics"
 // Compliance components
 // KenyaContextPanel removed for presentation neatness
@@ -34,7 +32,7 @@ import DemoModeController from "@/components/shared/DemoModeController"
 import { VoiceCommandPanel } from "@/components/shared/VoiceCommandPanel"
 import GuidedDemo from "@/components/shared/GuidedDemo"
 import BeforeAfterMetrics from "@/components/shared/BeforeAfterMetrics"
-import DeploymentRoadmap from "@/components/shared/DeploymentRoadmap"
+
 // NEW War Room Components (Pending restructure)
 import { LiveThreatMap } from "@/components/LiveThreatMap"
 import { AIConsole } from "@/components/AIConsole"
@@ -51,7 +49,6 @@ import type {
   SecurityIncident,
   CrimePrediction,
   SurveillanceFeed,
-  CommunityReport,
   EmergencyResponse,
   ThreatAnalytics,
   TimeSeriesData,
@@ -72,7 +69,6 @@ import type {
 import {
   generateCrimePredictions,
   generateSurveillanceFeeds,
-  generateCommunityReports,
   generateEmergencyResponses,
   generateThreatAnalytics,
   generateTimeSeriesData,
@@ -112,7 +108,6 @@ interface DashboardData {
   incidents: SecurityIncident[];
   predictions: CrimePrediction[];
   surveillanceFeeds: SurveillanceFeed[];
-  communityReports: CommunityReport[];
   emergencyResponses: EmergencyResponse[];
   threatAnalytics: ThreatAnalytics[];
   timeSeriesData: TimeSeriesData[];
@@ -228,7 +223,7 @@ export default function Home() {
         // Generate remaining mock data for components without API yet
         const predictions = generateCrimePredictions(15);
         const surveillanceFeeds = generateSurveillanceFeeds(40);
-        const communityReports = generateCommunityReports(25);
+
         const emergencyResponses = generateEmergencyResponses(12);
         const threatAnalytics = generateThreatAnalytics();
         const timeSeriesData = generateTimeSeriesData(30);
@@ -259,7 +254,6 @@ export default function Home() {
           incidents,
           predictions,
           surveillanceFeeds,
-          communityReports,
           emergencyResponses,
           threatAnalytics,
           timeSeriesData,
@@ -456,12 +450,12 @@ export default function Home() {
             </div>
 
             {/* ══════════════════════════════════════════════════════════════════
-                SECONDARY ROW: Live Intel Feed + Threat Engine + Community Intel
+                SECONDARY ROW: Live Intel Feed + Threat Engine
                ══════════════════════════════════════════════════════════════════ */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
               {/* Live Threat Feed */}
-              <div className="lg:col-span-5 flex flex-col gap-3">
+              <div className="flex flex-col gap-3">
                 <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
                   <span className="w-2 h-2 bg-cyan-500 rounded-full" />
                   Live Threat Intelligence
@@ -470,7 +464,7 @@ export default function Home() {
               </div>
 
               {/* Threat Analytics Engine */}
-              <div className="lg:col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-3">
                 <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
                   <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
                   Threat Correlation Engine
@@ -479,15 +473,6 @@ export default function Home() {
                   cyberThreats={data.cyberThreats}
                   coordinatedAttacks={data.coordinatedAttacks}
                 />
-              </div>
-
-              {/* Community Reports */}
-              <div className="lg:col-span-3 flex flex-col gap-3">
-                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full" />
-                  Community Intelligence
-                </div>
-                <CommunityReports reports={data.communityReports} maxItems={8} />
               </div>
             </div>
 
@@ -545,10 +530,7 @@ export default function Home() {
               <IncidentList incidents={data.incidents} maxItems={12} />
             </div>
 
-            {/* FULL WIDTH: Surveillance Network */}
-            <div className="flex flex-col gap-4">
-              <SurveillanceMonitor feeds={data.surveillanceFeeds} maxItems={12} />
-            </div>
+
           </div>
         )}
 
@@ -616,49 +598,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* ══════════════════════════════════════════════════════════════════
-                DATA ROW: CNI Heatmap + Unified Data Lake + Community Intelligence
-               ══════════════════════════════════════════════════════════════════ */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-              {/* CNI Heatmap */}
-              <div className="flex flex-col gap-3">
-                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-red-500 rounded-full" />
-                  Critical National Infrastructure
-                </div>
-                <CNIHeatmap />
-              </div>
-
-              {/* Unified Data Lake */}
-              <div className="flex flex-col gap-3">
-                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full" />
-                  Unified Data Lake
-                </div>
-                <DataLakeMonitor sources={data.dataLakeSources} />
-              </div>
-
-              {/* Community Intelligence */}
-              <div className="flex flex-col gap-3">
-                <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-emerald-500 rounded-full" />
-                  Community Intelligence
-                </div>
-                <CommunityReports reports={data.communityReports} maxItems={8} />
-              </div>
-            </div>
-
-            {/* ══════════════════════════════════════════════════════════════════
-                FULL WIDTH: Surveillance Network
-               ══════════════════════════════════════════════════════════════════ */}
-            <div className="flex flex-col gap-3">
-              <div className="text-xs text-green-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full" />
-                Surveillance Network
-              </div>
-              <SurveillanceMonitor feeds={data.surveillanceFeeds} maxItems={12} />
-            </div>
           </div>
         )}
 
@@ -706,7 +646,7 @@ export default function Home() {
               {/* ══════════════════════════════════════════════════════════════════
                   INTELLIGENCE ROW: Live Threat Feed + Threat Analytics Engine
                  ══════════════════════════════════════════════════════════════════ */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1">
 
                 {/* Live Threat Feed */}
                 <div className="flex flex-col gap-3">
@@ -714,7 +654,9 @@ export default function Home() {
                     <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                     Live Threat Intelligence Feed
                   </div>
-                  <LiveThreatFeed />
+                  <div className="min-h-[400px]">
+                    <LiveThreatFeed />
+                  </div>
                 </div>
 
                 {/* Threat Analytics Engine */}
@@ -723,22 +665,13 @@ export default function Home() {
                     <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
                     AI Threat Correlation Engine
                   </div>
-                  <ThreatAnalyticsEngine
-                    cyberThreats={data.cyberThreats}
-                    coordinatedAttacks={data.coordinatedAttacks}
-                  />
+                  <div className="min-h-[400px]">
+                    <ThreatAnalyticsEngine
+                      cyberThreats={data.cyberThreats}
+                      coordinatedAttacks={data.coordinatedAttacks}
+                    />
+                  </div>
                 </div>
-              </div>
-
-              {/* ══════════════════════════════════════════════════════════════════
-                  FULL WIDTH: Active Security Incidents
-                 ══════════════════════════════════════════════════════════════════ */}
-              <div className="flex flex-col gap-3">
-                <div className="text-xs text-red-500 uppercase tracking-widest font-bold px-1 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                  Active Security Incidents
-                </div>
-                <IncidentList incidents={data.incidents} maxItems={12} />
               </div>
             </div>
           )
@@ -880,15 +813,7 @@ export default function Home() {
                 <SovereignAIStatusPanel status={data.sovereignAIStatus} />
               </div>
 
-              {/* Responsible AI & Bias Statement */}
-              <div className="shrink-0">
-                <ResponsibleAIStatement />
-              </div>
 
-              {/* 90-Day Deployment Roadmap */}
-              <div className="shrink-0">
-                <DeploymentRoadmap />
-              </div>
 
               {/* Response Panel - Full Width */}
               <div className="shrink-0">

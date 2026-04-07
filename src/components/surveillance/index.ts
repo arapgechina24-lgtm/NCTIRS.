@@ -1,3 +1,2 @@
 // Barrel export for surveillance components
-export * from './CommunityReports';
-export * from './SurveillanceMonitor';
+// SurveillanceMonitor and CommunityReports have been removed
