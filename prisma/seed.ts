@@ -1,11 +1,10 @@
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import prisma from '../src/lib/db'
 
 async function main() {
   console.log('Clearing old data...')
-  await prisma.Incident.deleteMany({})
-  await prisma.Threat.deleteMany({})
-  await prisma.User.deleteMany({})
+  await prisma.incident.deleteMany({})
+  await prisma.threat.deleteMany({})
+  await prisma.user.deleteMany({})
 
   console.log('Seeding fake operations data...')
 
