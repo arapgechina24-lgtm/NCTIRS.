@@ -75,11 +75,17 @@ export async function fetchIncidents(options?: {
 
         const data = await apiFetch<{ incidents: DBIncident[], total: number }>(endpoint)
 
-        // Map DB incidents to SecurityIncident format
-        return data.incidents.map(mapDBIncidentToSecurityIncident)
+        // If DB returned real data, map and return it
+        if (data.incidents.length > 0) {
+            return data.incidents.map(mapDBIncidentToSecurityIncident)
+        }
+
+        // DB is empty — use mock data so dashboard is never blank
+        console.info('[API] No incidents in database, using mock data for display')
+        return generateMockIncidents(options?.limit || 30)
     } catch (error) {
         console.warn('Failed to fetch incidents from API, using mock data:', error)
-        return generateMockIncidents(30)
+        return generateMockIncidents(options?.limit || 30)
     }
 }
 
@@ -163,10 +169,16 @@ export async function fetchThreats(options?: {
 
         const data = await apiFetch<{ threats: DBThreat[], total: number }>(endpoint)
 
-        return data.threats.map(mapDBThreatToCyberThreat)
+        if (data.threats.length > 0) {
+            return data.threats.map(mapDBThreatToCyberThreat)
+        }
+
+        // DB is empty — use mock data so dashboard is never blank
+        console.info('[API] No threats in database, using mock data for display')
+        return generateCyberThreats(options?.limit || 20)
     } catch (error) {
         console.warn('Failed to fetch threats from API, using mock data:', error)
-        return generateCyberThreats(20)
+        return generateCyberThreats(options?.limit || 20)
     }
 }
 
