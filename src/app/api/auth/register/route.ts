@@ -69,18 +69,22 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Create audit log
-        await prisma.auditLog.create({
-            data: {
-                action: 'REGISTER',
-                resource: 'auth',
-                userId: user.id,
-                details: JSON.stringify({ email: user.email, role: user.role }),
-                ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
-                userAgent: request.headers.get('user-agent') || 'unknown',
-                hash: createHash('sha256').update(`REGISTER-${user.id}-${Date.now()}`).digest('hex'),
-            }
-        })
+        // Create audit log (non-critical, don't fail registration)
+        try {
+            await prisma.auditLog.create({
+                data: {
+                    action: 'REGISTER',
+                    resource: 'auth',
+                    userId: user.id,
+                    details: JSON.stringify({ email: user.email, role: user.role }),
+                    ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+                    userAgent: request.headers.get('user-agent') || 'unknown',
+                    hash: createHash('sha256').update(`REGISTER-${user.id}-${Date.now()}`).digest('hex'),
+                }
+            })
+        } catch (auditError) {
+            console.warn('[API] Registration audit log failed:', auditError)
+        }
 
         return NextResponse.json({
             success: true,

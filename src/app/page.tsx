@@ -898,7 +898,7 @@ export default function Home() {
           )
         }
 
-      </main >
+      </main>
 
       <ThreatMonitor
         incidents={data?.incidents || []}
@@ -924,6 +924,6 @@ export default function Home() {
       />
 
       <DemoModeController onTriggerEmergency={() => setIsEmergency(true)} />
-    </div >
+    </div>
   );
 }

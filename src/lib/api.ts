@@ -270,7 +270,7 @@ export async function fetchAuditLogs(options?: {
     if (options?.limit) params.set('limit', options.limit.toString())
 
     const queryString = params.toString()
-    const endpoint = queryString ? `/ audit ? ${queryString} ` : '/audit'
+    const endpoint = queryString ? `/audit?${queryString}` : '/audit'
 
     const data = await apiFetch<{ logs: AuditLog[], total: number }>(endpoint)
     return data.logs

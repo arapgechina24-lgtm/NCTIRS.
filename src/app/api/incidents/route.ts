@@ -106,11 +106,12 @@ export async function POST(request: NextRequest) {
             }
         })
 
-        // Forward high-priority incidents to NSSPIP for AI analysis
-        const NSSPIP_API_URL = process.env.NSSPIP_API_URL || "http://localhost:3000/api/incidents";
+        // Forward high-priority incidents to NSSPIP for AI analysis (only if configured)
+        const NSSPIP_API_URL = process.env.NSSPIP_API_URL;
         
-        // Non-blocking sync to NSSPIP
-        fetch(NSSPIP_API_URL, {
+        // Non-blocking sync to NSSPIP (skip if not configured to avoid self-referential calls)
+        if (NSSPIP_API_URL) {
+            fetch(NSSPIP_API_URL, {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
@@ -134,6 +135,7 @@ export async function POST(request: NextRequest) {
         .catch(err => {
             console.error(`[SYNC] Failed to forward incident ${incident.id} to NSSPIP:`, err);
         });
+        }
 
         // Create audit log
         await prisma.auditLog.create({
