@@ -14,6 +14,9 @@
     "lint": "eslint",
     "test": "vitest run"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "eslintConfig": {
     "extends": "next/core-web-vitals",
     "ignorePatterns": [
