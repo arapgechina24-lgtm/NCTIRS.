@@ -44,13 +44,20 @@ const MultiplayerSession: React.FC = () => {
 
     useEffect(() => {
         const ably = getAblyClient();
+        let ghostCleanup: (() => void) | null = null;
 
         if (!ably) {
             // FALLBACK: Start Ghost Simulation if no API Key
             console.log('Using Ghost Simulation Mode');
             // Defer execution to avoid sync state update warning
-            setTimeout(() => startGhostSimulation(), 0);
-            return;
+            const timeoutId = setTimeout(() => {
+                ghostCleanup = startGhostSimulation() || null;
+            }, 0);
+
+            return () => {
+                clearTimeout(timeoutId);
+                if (ghostCleanup) ghostCleanup();
+            };
         }
 
         // REAL-TIME: Ably Logic
@@ -98,7 +105,7 @@ const MultiplayerSession: React.FC = () => {
             } catch (err) {
                 console.error('Ably connection failed, falling back to simulation', err);
                 setStatus('SIMULATION');
-                startGhostSimulation();
+                ghostCleanup = startGhostSimulation() || null;
             }
         };
 
@@ -106,8 +113,7 @@ const MultiplayerSession: React.FC = () => {
 
         return () => {
             cleanupPromise.then(cleanup => cleanup && cleanup());
-            // Intentionally not closing ably instance to reuse connection, 
-            // but in a strict cleanup we might.
+            if (ghostCleanup) ghostCleanup();
         };
 
 
