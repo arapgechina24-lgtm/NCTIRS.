@@ -380,7 +380,7 @@ export default function Home() {
                 <KeyMetrics metrics={{
                   threatLevel: activeCoordinated > 0 ? 'CRITICAL' : highThreatCount > 5 ? 'HIGH' : 'MEDIUM',
                   activeIncidents: data.incidents.length,
-                  aiConfidence: 94.2,
+                  aiConfidence: 98.7,
                   systemLoad: 78,
                   responsesActive: activeResponses,
                   networkTraffic: '45.2 TB/s'
@@ -614,7 +614,7 @@ export default function Home() {
                 <KeyMetrics metrics={{
                   threatLevel: activeCoordinated > 0 ? 'CRITICAL' : 'HIGH',
                   activeIncidents: data.incidents.length,
-                  aiConfidence: 89.5,
+                  aiConfidence: 98.7,
                   systemLoad: 65,
                   responsesActive: activeResponses,
                   networkTraffic: '12 TB/s'
@@ -765,7 +765,7 @@ export default function Home() {
                       ))}
                     </div>
                     <div className="mt-4 pt-3 border-t border-blue-900/20 flex justify-between text-[9px] text-blue-800 font-mono uppercase">
-                      <span>Model Confidence: 94.2%</span>
+                      <span>Model Confidence: 98.7%</span>
                       <span>Last Retrained: 2h ago</span>
                     </div>
                   </div>

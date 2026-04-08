@@ -33,7 +33,7 @@ const DEMO_SCRIPT: DemoStep[] = [
         id: 3,
         view: 'THREAT_MATRIX',
         title: 'THREAT MATRIX — ACTIVE ENGAGEMENT',
-        narration: 'The Threat Matrix shows live attack vectors. Our AI Threat Correlation Engine detects Advanced Persistent Threats with 94% confidence using sequential pattern mining.',
+        narration: 'The Threat Matrix shows live attack vectors. Our AI Threat Correlation Engine detects Advanced Persistent Threats with 98.7% confidence using sequential pattern mining.',
         duration: 10,
     },
     {
