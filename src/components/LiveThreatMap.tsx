@@ -15,6 +15,7 @@ export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThre
     const mapRef = useRef<HTMLDivElement>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mapInstanceRef = useRef<any>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const layerGroupRef = useRef<any>(null);
     const [activeLayers, setActiveLayers] = useState({
         threats: true,
