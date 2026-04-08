@@ -2,7 +2,7 @@
 # https://docs.railway.com/reference/config-as-code
 
 [build]
-buildCommand = "npm ci && npx prisma generate && npx next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/"
+buildCommand = "npm install && npx prisma generate && npx next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/"
 
 [deploy]
 startCommand = "HOSTNAME=0.0.0.0 node .next/standalone/server.js"
