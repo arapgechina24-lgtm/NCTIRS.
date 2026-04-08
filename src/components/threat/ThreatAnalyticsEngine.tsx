@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { Brain, Cpu, Target, TrendingUp, AlertTriangle, Zap, Activity, Shield, BarChart3, Clock } from "lucide-react"
-import { CyberThreat, CoordinatedAttack } from "@/lib/mockData"
+import { CyberThreat, CoordinatedAttack, generateCyberThreats } from "@/lib/mockData"
 
 interface ThreatAnalyticsEngineProps {
     cyberThreats: CyberThreat[];
@@ -111,19 +111,24 @@ export function ThreatAnalyticsEngine({ cyberThreats, coordinatedAttacks }: Thre
             totalInferenceMs: 142.7,
             recordsProcessed: 2548,
             anomalyDetection: {
-                anomaliesFound: 2,
+                anomaliesFound: 5,
                 results: [
                     { incidentId: 'INC-701A', title: 'Atypical Outbound SSH Tunnel via Port 443', anomalyScore: 89, isAnomaly: true, deviation: 'Z=2.84', reason: 'Payload size 4.2GB is abnormally large; unusual activity spike at 03:00' },
-                    { incidentId: 'INC-702B', title: 'Data Exfiltration via DNS Tunneling', anomalyScore: 76, isAnomaly: true, deviation: 'Z=2.1', reason: 'Severity HIGH deviates from baseline; abnormal protocol usage' }
+                    { incidentId: 'INC-702B', title: 'Data Exfiltration via DNS Tunneling', anomalyScore: 76, isAnomaly: true, deviation: 'Z=2.1', reason: 'Severity HIGH deviates from baseline; abnormal protocol usage' },
+                    { incidentId: 'INC-703C', title: 'Lateral Movement attempt via SMB', anomalyScore: 92, isAnomaly: true, deviation: 'Z=3.1', reason: 'Sequential authentication failures across internal subnets' },
+                    { incidentId: 'INC-704D', title: 'Unauthorized SCADA access attempt', anomalyScore: 96, isAnomaly: true, deviation: 'Z=3.5', reason: 'Unusual registry modifications on embedded nodes' },
+                    { incidentId: 'INC-705E', title: 'Exploit of CVE-2024-3400 detected', anomalyScore: 84, isAnomaly: true, deviation: 'Z=2.5', reason: 'Abnormal traffic volume terminating at edge firewall interface' }
                 ]
             },
             behavioralAnalysis: {
-                patternsFound: 4,
-                attackChainsIdentified: 2,
+                patternsFound: 5,
+                attackChainsIdentified: 3,
                 patterns: [
                     { pattern: 'TEMPORAL_BURST', description: 'Detected 4 time windows with ≥3 concurrent attacks — indicates coordinated campaign', frequency: 12, riskLevel: 'HIGH', mitreTactics: ['TA0001 Initial Access', 'TA0042 Resource Development'], confidence: 0.987 },
                     { pattern: 'TARGET_FIXATION', description: '"KRA Data Center" attacked 5 times — persistent adversary interest', frequency: 5, riskLevel: 'HIGH', mitreTactics: ['TA0043 Reconnaissance', 'TA0001 Initial Access'], confidence: 0.88 },
-                    { pattern: 'MULTI_VECTOR_APT', description: '"Central Bank IT" targeted by 3 distinct attack vectors — APT-level sophistication', frequency: 3, riskLevel: 'CRITICAL', mitreTactics: ['TA0005 Defense Evasion', 'TA0008 Lateral Movement', 'TA0010 Exfiltration'], confidence: 0.97 }
+                    { pattern: 'MULTI_VECTOR_APT', description: '"Central Bank IT" targeted by 3 distinct attack vectors — APT-level sophistication', frequency: 3, riskLevel: 'CRITICAL', mitreTactics: ['TA0005 Defense Evasion', 'TA0008 Lateral Movement', 'TA0010 Exfiltration'], confidence: 0.97 },
+                    { pattern: 'GEOGRAPHIC_CLUSTER', description: '15 attacks originating from 185.150.x.x — potential botnet staging ground', frequency: 15, riskLevel: 'CRITICAL', mitreTactics: ['TA0011 Command and Control'], confidence: 0.92 },
+                    { pattern: 'DEFENSE_EVASION', description: 'Repeated clearing of Windows Event Logs on target servers', frequency: 8, riskLevel: 'HIGH', mitreTactics: ['TA0005 Defense Evasion'], confidence: 0.91 }
                 ],
                 behaviorProfile: {}
             },
@@ -148,7 +153,8 @@ export function ThreatAnalyticsEngine({ cyberThreats, coordinatedAttacks }: Thre
         return () => clearInterval(interval);
     }, [fetchAnalytics]);
 
-    const criticalThreats = cyberThreats.filter(t => t.severity === 'CRITICAL');
+    const activeCyberThreats = useMemo(() => cyberThreats.length > 0 ? cyberThreats : generateCyberThreats(25), [cyberThreats]);
+    const criticalThreats = activeCyberThreats.filter(t => t.severity === 'CRITICAL');
     const activeCoordinated = coordinatedAttacks.filter(a => a.status !== 'RESOLVED');
 
     return (
@@ -365,7 +371,7 @@ export function ThreatAnalyticsEngine({ cyberThreats, coordinatedAttacks }: Thre
                     </div>
                     <div className="space-y-1">
                         {['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].map(level => {
-                            const count = cyberThreats.filter(t => t.severity === level).length;
+                            const count = activeCyberThreats.filter(t => t.severity === level).length;
                             return (
                                 <div key={level} className="flex items-center justify-between text-[9px]">
                                     <span className={severityColors[level as keyof typeof severityColors].split(' ')[0]}>{level}</span>
@@ -373,7 +379,7 @@ export function ThreatAnalyticsEngine({ cyberThreats, coordinatedAttacks }: Thre
                                         <div className="w-20 h-1.5 bg-green-950 overflow-hidden">
                                             <div
                                                 className={`h-full ${level === 'CRITICAL' ? 'bg-red-500' : level === 'HIGH' ? 'bg-orange-500' : level === 'MEDIUM' ? 'bg-yellow-500' : 'bg-green-500'}`}
-                                                style={{ width: `${cyberThreats.length > 0 ? (count / cyberThreats.length) * 100 : 0}%` }}
+                                                style={{ width: `${activeCyberThreats.length > 0 ? (count / activeCyberThreats.length) * 100 : 0}%` }}
                                             />
                                         </div>
                                         <span className="font-mono text-green-400 w-6">{count}</span>
@@ -391,7 +397,7 @@ export function ThreatAnalyticsEngine({ cyberThreats, coordinatedAttacks }: Thre
                     </div>
                     <div className="space-y-1">
                         {['APT', 'RANSOMWARE', 'DDOS', 'PHISHING'].map(type => {
-                            const count = cyberThreats.filter(t => t.type === type).length;
+                            const count = activeCyberThreats.filter(t => t.type === type).length;
                             return (
                                 <div key={type} className="flex items-center justify-between text-[9px]">
                                     <span className="text-green-600">{type}</span>
