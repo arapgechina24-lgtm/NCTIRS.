@@ -88,7 +88,6 @@ async function main() {
                 targetAsset: target,
                 attackVector: attack.vector,
                 indicators: JSON.stringify({ src_ip: generateRandomIP(), payload_size: Math.floor(Math.random() * 5000), protocol: Math.random() > 0.5 ? 'TCP' : 'UDP' }),
-                detectedAt: dateDetected,
                 createdAt: dateDetected
             });
         }

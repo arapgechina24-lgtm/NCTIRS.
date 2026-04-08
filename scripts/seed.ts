@@ -157,7 +157,7 @@ async function main() {
                 county: county.name, targetAsset: pick(CNI),
                 attackVector: `${mitre.id}: ${mitre.name}`,
                 indicators: JSON.stringify({ source_ip: `${rand(1,223)}.${rand(0,255)}.${rand(0,255)}.${rand(1,254)}`, source_ips: Array.from({length: rand(1,4)}, () => `${rand(1,223)}.${rand(0,255)}.${rand(0,255)}.${rand(1,254)}`), payload_size: rand(100, 15000), hashes: [createHash('sha256').update(`ioc-${i}`).digest('hex')] }),
-                createdById: pick(userIds), createdAt: pastDate(90), detectedAt: pastDate(90),
+                createdById: pick(userIds), createdAt: pastDate(90),
                 resolvedAt: Math.random() > 0.5 ? pastDate(80) : null,
             },
         })

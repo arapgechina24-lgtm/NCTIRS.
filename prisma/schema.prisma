@@ -8,7 +8,9 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  // Actual URL is set dynamically via prisma.config.ts (supports Turso libsql://)
+  // This dummy value satisfies schema validation during prisma generate
+  url      = "file:./dev.db"
 }
 
 // User model with role-based access (L1-L4)

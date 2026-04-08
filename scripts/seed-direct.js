@@ -129,7 +129,7 @@ async function main() {
         const sev = pick(SEVERITIES);
         const created = pastISO(90);
         await db.execute({
-            sql: `INSERT INTO Incident (id, title, description, type, severity, status, location, latitude, longitude, county, targetAsset, attackVector, indicators, createdAt, updatedAt, detectedAt, resolvedAt, createdById) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+            sql: `INSERT INTO Incident (id, title, description, type, severity, status, location, latitude, longitude, county, targetAsset, attackVector, indicators, createdAt, updatedAt, resolvedAt, createdById) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
             args: [
                 id, pick(titles),
                 `AI-correlated ${type.replace(/_/g,' ').toLowerCase()} targeting ${pick(CNI)}. MITRE ${mitre.id} (${mitre.nm}). Actor: ${pick(ACTORS)}, origin: ${pick(SOURCES)}. ${rand(2,15)} IOCs.`,
@@ -137,7 +137,7 @@ async function main() {
                 county.lat + (Math.random()-0.5)*0.2, county.lng + (Math.random()-0.5)*0.2,
                 county.n, pick(CNI), `${mitre.id}: ${mitre.nm}`,
                 JSON.stringify({source_ip:`${rand(1,223)}.${rand(0,255)}.${rand(0,255)}.${rand(1,254)}`,payload_size:rand(100,15000),hashes:[createHash('sha256').update(`ioc-${i}`).digest('hex')]}),
-                created, created, created,
+                created, created,
                 Math.random()>0.5 ? pastISO(80) : null,
                 pick(userIds),
             ],
