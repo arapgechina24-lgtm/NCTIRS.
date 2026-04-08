@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from "react"
-import { Brain, Cpu, Target, TrendingUp, AlertTriangle, Zap, Activity, Shield, BarChart3 } from "lucide-react"
+import { Brain, Cpu, Target, TrendingUp, AlertTriangle, Zap, Activity, Shield, BarChart3, Clock } from "lucide-react"
 import { CyberThreat, CoordinatedAttack } from "@/lib/mockData"
 
 interface ThreatAnalyticsEngineProps {
@@ -69,13 +69,28 @@ const patternColors: Record<string, string> = {
     'GEOGRAPHIC_CLUSTER': 'text-yellow-400',
 }
 
-type ActiveTab = 'anomalies' | 'behavioral' | 'predictions';
+type ActiveTab = 'anomalies' | 'behavioral' | 'predictions' | 'imminent';
 
 export function ThreatAnalyticsEngine({ cyberThreats, coordinatedAttacks }: ThreatAnalyticsEngineProps) {
     const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<ActiveTab>('anomalies');
     const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+    const [countdown, setCountdown] = useState(14 * 60 + 35); // 14m 35s
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCountdown(prev => prev > 0 ? prev - 1 : 0);
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const formatCountdown = (secs: number) => {
+        const h = Math.floor(secs / 3600);
+        const m = Math.floor((secs % 3600) / 60);
+        const s = secs % 60;
+        return `T-${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
 
     const fetchAnalytics = useCallback(async () => {
         try {
@@ -182,9 +197,10 @@ export function ThreatAnalyticsEngine({ cyberThreats, coordinatedAttacks }: Thre
             {/* Tab Navigation */}
             <div className="flex gap-1 mb-3">
                 {([
-                    { key: 'anomalies' as ActiveTab, label: 'ANOMALY DETECTION', icon: Activity, count: analytics?.anomalyDetection.anomaliesFound },
-                    { key: 'behavioral' as ActiveTab, label: 'BEHAVIORAL ANALYSIS', icon: Shield, count: analytics?.behavioralAnalysis.patternsFound },
-                    { key: 'predictions' as ActiveTab, label: 'PREDICTIONS', icon: BarChart3, count: analytics?.predictiveModeling.forecast.length },
+                    { key: 'anomalies' as ActiveTab, label: 'ANOMALY DETECT', icon: Activity, count: analytics?.anomalyDetection.anomaliesFound },
+                    { key: 'behavioral' as ActiveTab, label: 'BEHAVIORAL', icon: Shield, count: analytics?.behavioralAnalysis.patternsFound },
+                    { key: 'predictions' as ActiveTab, label: 'FORECAST', icon: BarChart3, count: analytics?.predictiveModeling.forecast.length },
+                    { key: 'imminent' as ActiveTab, label: 'NEXT ATTACK', icon: Clock, count: 1 },
                 ]).map(tab => (
                     <button
                         key={tab.key}
@@ -292,6 +308,49 @@ export function ThreatAnalyticsEngine({ cyberThreats, coordinatedAttacks }: Thre
                                     <div className="text-[8px] text-green-900 font-mono">{pred.riskForecast}</div>
                                 </div>
                             ))}
+                        </div>
+                    )}
+
+                    {/* IMMINENT ATTACK TAB */}
+                    {activeTab === 'imminent' && (
+                        <div className="space-y-3 relative overflow-hidden p-4 border border-red-900/50 bg-black shadow-[inset_0_0_50px_rgba(220,38,38,0.05)]">
+                            <div className="absolute inset-0 bg-red-900/10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.15) 0%, transparent 70%)' }}></div>
+                            
+                            <div className="flex items-center justify-between relative z-10">
+                                <div className="text-[10px] font-bold text-red-500 flex items-center gap-2">
+                                    <AlertTriangle className="h-4 w-4 animate-pulse" />
+                                    IMMINENT THREAT DETECTED
+                                </div>
+                                <div className="text-[9px] font-mono text-cyan-400 bg-cyan-950/30 px-1.5 py-0.5 border border-cyan-900/50">
+                                    CONF: 98.7%
+                                </div>
+                            </div>
+                            
+                            <div className="flex flex-col items-center justify-center py-5 border-y border-red-900/30 relative z-10 bg-black/40">
+                                <div className="text-[10px] text-red-700 font-mono mb-1 tracking-widest">ESTIMATED EVENT HORIZON</div>
+                                <div className="text-4xl font-bold font-mono text-red-400 tracking-widest animate-pulse drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]">
+                                    {formatCountdown(countdown)}
+                                </div>
+                            </div>
+
+                            <div className="space-y-2 relative z-10">
+                                <div className="bg-red-950/40 border border-red-900/30 p-2">
+                                    <div className="text-[9px] text-red-500/70 font-mono mb-0.5">PREDICTED TARGET</div>
+                                    <div className="text-[11px] font-bold text-red-300">Central Bank of Kenya (CBK) Core Ledger</div>
+                                </div>
+                                <div className="bg-orange-950/40 border border-orange-900/30 p-2">
+                                    <div className="text-[9px] text-orange-500/70 font-mono mb-0.5">PREDICTED VECTOR</div>
+                                    <div className="text-[11px] font-bold text-orange-300">T1190 - Exploit Public-Facing App</div>
+                                </div>
+                                <div className="bg-yellow-950/40 border border-yellow-900/30 p-2">
+                                    <div className="text-[9px] text-yellow-500/70 font-mono mb-0.5">ATTACK ORIGIN CLUSTER</div>
+                                    <div className="text-[11px] font-bold text-yellow-300">185.150.x.x (Unknown VPN Node)</div>
+                                </div>
+                            </div>
+
+                            <div className="mt-2 text-[9px] text-red-400 font-mono text-center relative z-10 italic">
+                                Autonomous SOAR protocol will engage at T-00:00:20
+                            </div>
                         </div>
                     )}
                 </>
