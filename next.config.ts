@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  transpilePackages: ['recharts', 'react-is'],
+  transpilePackages: ['recharts'],
   // cacheComponents: true, // Partial Prerendering (PPR) in Next.js 16
   async headers() {
     return [
