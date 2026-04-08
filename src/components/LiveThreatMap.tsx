@@ -78,16 +78,16 @@ export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThre
 
             const style = document.createElement('style');
             style.textContent = `
-        .pulsing-beacon { position: relative; }
-        .pulsing-beacon:before { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; background: inherit; animation: pulse-ring 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite; opacity: 0.6; z-index: -1; }
-        .pulsing-beacon:after { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; background: inherit; animation: pulse-dot 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite; z-index: 1; }
-        .shield-wave { position: relative; }
-        .shield-wave:before { content: ''; position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; transform: translate(-50%, -50%); border: 2px solid #3b82f6; border-radius: 50%; background: rgba(59, 130, 246, 0.1); animation: shield-expand 2s ease-out infinite; z-index: 0; }
-        .shield-wave:after { content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; transform: translate(-50%, -50%); background: #60a5fa; border-radius: 50%; z-index: 2; }
-        @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(3); opacity: 0; } }
-        @keyframes pulse-dot { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
-        @keyframes shield-expand { 0% { width: 10px; height: 10px; opacity: 1; border-width: 2px; } 100% { width: 80px; height: 80px; opacity: 0; border-width: 0px; } }
-        .marker-pin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #000; }
+        .pulsing-beacon { position: relative; will-change: transform; transform: translateZ(0); }
+        .pulsing-beacon:before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; background: inherit; animation: pulse-ring 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite; opacity: 0.6; z-index: -1; will-change: transform, opacity; }
+        .pulsing-beacon:after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; background: inherit; animation: pulse-dot 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite; z-index: 1; will-change: transform; }
+        .shield-wave { position: relative; will-change: transform; transform: translateZ(0); }
+        .shield-wave:before { content: ''; position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; margin-top: -10px; margin-left: -10px; border: 2px solid #3b82f6; border-radius: 50%; background: rgba(59, 130, 246, 0.1); animation: shield-expand 2s ease-out infinite; z-index: 0; will-change: transform, opacity; }
+        .shield-wave:after { content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; margin-top: -2px; margin-left: -2px; background: #60a5fa; border-radius: 50%; z-index: 2; will-change: transform; }
+        @keyframes pulse-ring { 0% { transform: scale(1) translateZ(0); opacity: 0.8; } 100% { transform: scale(3) translateZ(0); opacity: 0; } }
+        @keyframes pulse-dot { 0% { transform: scale(1) translateZ(0); } 50% { transform: scale(1.2) translateZ(0); } 100% { transform: scale(1) translateZ(0); } }
+        @keyframes shield-expand { 0% { transform: scale(0.5) translateZ(0); opacity: 1; } 100% { transform: scale(4) translateZ(0); opacity: 0; } }
+        .marker-pin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #000; will-change: transform; transform: translateZ(0); }
       `;
             document.head.appendChild(style);
 

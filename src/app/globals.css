@@ -91,11 +91,11 @@ body::before {
 /* Scan line animation */
 @keyframes scan {
   0% {
-    transform: translateY(-100%);
+    transform: translateY(-100%) translateZ(0);
   }
 
   100% {
-    transform: translateY(100vh);
+    transform: translateY(100vh) translateZ(0);
   }
 }
 
@@ -109,6 +109,8 @@ body::before {
   animation: scan 6s linear infinite;
   pointer-events: none;
   z-index: 9999;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* CIA Card Shadows and Borders */
@@ -142,11 +144,11 @@ body::after {
 /* Cyber Emergency Animations */
 @keyframes scanline {
   0% {
-    transform: translateY(-100%);
+    transform: translateY(-100%) translateZ(0);
   }
 
   100% {
-    transform: translateY(100%);
+    transform: translateY(100%) translateZ(0);
   }
 }
 
@@ -155,23 +157,27 @@ body::after {
   0%,
   100% {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1) translateZ(0);
     filter: hue-rotate(0deg);
   }
 
   50% {
     opacity: 0.8;
-    transform: scale(1.02);
+    transform: scale(1.02) translateZ(0);
     filter: hue-rotate(180deg);
   }
 }
 
 .animate-scanline {
   animation: scanline 4s linear infinite;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .animate-glitch {
   animation: glitch-pulse 0.2s ease-in-out infinite;
+  will-change: transform, opacity, filter;
+  transform: translateZ(0);
 }
 
 /* SOVEREIGN MODE LOCKDOWN STYLES */
@@ -208,6 +214,8 @@ body.theme-sovereign-lockdown::before {
   white-space: nowrap;
   letter-spacing: 0.5rem;
   text-shadow: 0 0 20px red;
+  will-change: transform, opacity;
+  transform: translateX(-50%) translateZ(0);
 }
 
 @keyframes pulse-warning {
@@ -215,11 +223,11 @@ body.theme-sovereign-lockdown::before {
   0%,
   100% {
     opacity: 0.1;
-    transform: translateX(-50%) scale(1);
+    transform: translateX(-50%) scale(1) translateZ(0);
   }
 
   50% {
     opacity: 0.4;
-    transform: translateX(-50%) scale(1.05);
+    transform: translateX(-50%) scale(1.05) translateZ(0);
   }
 }
