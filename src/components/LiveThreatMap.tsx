@@ -15,6 +15,7 @@ export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThre
     const mapRef = useRef<HTMLDivElement>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mapInstanceRef = useRef<any>(null);
+    const layerGroupRef = useRef<any>(null);
     const [activeLayers, setActiveLayers] = useState({
         threats: true,
         predictions: true,
@@ -51,215 +52,110 @@ export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThre
         return () => clearInterval(interval);
     }, [incidents]);
 
+    // 1. Initialize Map Once
     useEffect(() => {
-        if (typeof window === 'undefined' || !mapRef.current) return;
+        if (typeof window === 'undefined' || !mapRef.current || mapInstanceRef.current) return;
 
         const initMap = async () => {
             const L = (await import('leaflet')).default;
-            // Provide global \`L\` for plugins before importing them
             if (typeof window !== 'undefined') {
                 (window as unknown as Record<string, unknown>).L = L;
             }
             await import('leaflet/dist/leaflet.css');
-            // No types needed for runtime injection
             await import('leaflet.heat');
 
-            if (mapInstanceRef.current) {
-                mapInstanceRef.current.remove();
-            }
-
-            // Initialize map centered on Kenya with constrained zoom
             const map = L.map(mapRef.current as HTMLElement, {
                 zoomControl: false,
                 attributionControl: false,
-                dragging: false, // Lockdown mode for Director View stability
+                dragging: false,
                 scrollWheelZoom: false
             }).setView([-0.0236, 37.9062], 6);
 
-            // CartoDB Dark Matter Tiles (The "War Room" Look)
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 maxZoom: 19,
                 subdomains: 'abcd'
             }).addTo(map);
 
-            // Add custom styles for pulsating markers AND shield waves
             const style = document.createElement('style');
             style.textContent = `
         .pulsing-beacon { position: relative; }
-        .pulsing-beacon:before {
-          content: ''; position: absolute; width: 100%; height: 100%;
-          border-radius: 50%; background: inherit;
-          animation: pulse-ring 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
-          opacity: 0.6; z-index: -1;
-        }
-        .pulsing-beacon:after {
-          content: ''; position: absolute; width: 100%; height: 100%;
-          border-radius: 50%; background: inherit;
-          animation: pulse-dot 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
-          z-index: 1;
-        }
-        
-        /* SHIELD WAVE ANIMATION */
+        .pulsing-beacon:before { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; background: inherit; animation: pulse-ring 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite; opacity: 0.6; z-index: -1; }
+        .pulsing-beacon:after { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; background: inherit; animation: pulse-dot 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite; z-index: 1; }
         .shield-wave { position: relative; }
-        .shield-wave:before {
-            content: ''; position: absolute; top: 50%; left: 50%;
-            width: 10px; height: 10px;
-            transform: translate(-50%, -50%);
-            border: 2px solid #3b82f6; /* Blue Shield */
-            border-radius: 50%;
-            background: rgba(59, 130, 246, 0.1);
-            animation: shield-expand 2s ease-out infinite;
-            z-index: 0;
-        }
-        .shield-wave:after {
-            content: ''; position: absolute; top: 50%; left: 50%;
-            width: 4px; height: 4px;
-            transform: translate(-50%, -50%);
-            background: #60a5fa;
-            border-radius: 50%;
-            z-index: 2;
-        }
-
-        @keyframes pulse-ring {
-          0% { transform: scale(1); opacity: 0.8; }
-          100% { transform: scale(3); opacity: 0; }
-        }
-        @keyframes pulse-dot {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.2); }
-          100% { transform: scale(1); }
-        }
-        @keyframes shield-expand {
-            0% { width: 10px; height: 10px; opacity: 1; border-width: 2px; }
-            100% { width: 80px; height: 80px; opacity: 0; border-width: 0px; }
-        }
-
-        .marker-pin {
-          width: 12px; height: 12px; border-radius: 50%; border: 2px solid #000;
-        }
+        .shield-wave:before { content: ''; position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; transform: translate(-50%, -50%); border: 2px solid #3b82f6; border-radius: 50%; background: rgba(59, 130, 246, 0.1); animation: shield-expand 2s ease-out infinite; z-index: 0; }
+        .shield-wave:after { content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; transform: translate(-50%, -50%); background: #60a5fa; border-radius: 50%; z-index: 2; }
+        @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(3); opacity: 0; } }
+        @keyframes pulse-dot { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        @keyframes shield-expand { 0% { width: 10px; height: 10px; opacity: 1; border-width: 2px; } 100% { width: 80px; height: 80px; opacity: 0; border-width: 0px; } }
+        .marker-pin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #000; }
       `;
             document.head.appendChild(style);
 
-            // --- LAYERS ---
-
-            // 1. THREATS LAYER (HEATMAP + FOCUSED MARKERS)
-            if (activeLayers.threats) {
-                // Add Heatmap Layer for all incidents
-                const heatPoints = incidents.map(incident => {
-                    let intensity = 0.4;
-                    if (incident.threatLevel === 'CRITICAL') intensity = 1.0;
-                    else if (incident.threatLevel === 'HIGH') intensity = 0.8;
-                    else if (incident.threatLevel === 'MEDIUM') intensity = 0.6;
-                    
-                    return [
-                        incident.location.coordinates[0],
-                        incident.location.coordinates[1],
-                        intensity
-                    ];
-                });
-
-                L.heatLayer(heatPoints as [number, number, number][], {
-                    radius: 35,
-                    blur: 25,
-                    maxZoom: 10,
-                    max: 1.0,
-                    gradient: {
-                        0.4: '#eab308', // yellow
-                        0.7: '#f97316', // orange
-                        1.0: '#ef4444'  // red
-                    }
-                }).addTo(map);
-
-                // Add interactive markers only for Critical or Neutralized threats
-                incidents.forEach((incident) => {
-                    const isNeutralized = neutralizedIds.has(incident.id);
-                    // Only show Individual Markers for Critical or Neutralized threats on top of the heatmap
-                    if (!isNeutralized && incident.threatLevel !== 'CRITICAL') return;
-
-                    let color = '#ff0000';
-                    let className = 'pulsing-beacon';
-
-                    if (isNeutralized) {
-                        color = '#3b82f6'; // Blue
-                        className = 'shield-wave';
-                    }
-
-                    const iconHtml = isNeutralized
-                        ? `<div style="width: 100%; height: 100%;"></div>` 
-                        : `<div class="marker-pin" style="background-color: ${color}; box-shadow: 0 0 10px ${color}; border-color: #fff;"></div>`;
-
-                    const icon = L.divIcon({
-                        className: className,
-                        html: iconHtml,
-                        iconSize: isNeutralized ? [20, 20] : [12, 12],
-                        iconAnchor: isNeutralized ? [10, 10] : [6, 6]
-                    });
-
-                    L.marker(incident.location.coordinates, { icon })
-                        .bindPopup(`
-              <div class="bg-black text-green-500 font-mono text-xs p-2 border border-green-900">
-                <div class="font-bold border-b border-green-800 mb-1">${incident.id}</div>
-                <div class="text-white">${incident.type}</div>
-                <div class="text-[10px] text-gray-400 mt-1">STATUS: ${isNeutralized ? 'NEUTRALIZING...' : incident.status}</div>
-              </div>
-            `)
-                        .addTo(map);
-                });
-            }
-
-            // 2. SURVEILLANCE LAYER
-            if (activeLayers.surveillance) {
-                surveillance.filter(s => s.status === 'ACTIVE' || s.status === 'ALERT').slice(0, 30).forEach((feed) => {
-                    const isAlert = feed.status === 'ALERT';
-                    const color = isAlert ? '#00ffff' : '#005500';
-                    const size = isAlert ? 8 : 4;
-
-                    const icon = L.divIcon({
-                        className: isAlert ? 'pulsing-beacon' : '',
-                        html: `<div style="width: ${size}px; height: ${size}px; background-color: ${color}; border-radius: 50%;"></div>`,
-                        iconSize: [size, size],
-                        iconAnchor: [size / 2, size / 2]
-                    });
-
-                    L.marker(feed.coordinates, { icon }).addTo(map);
-                });
-            }
-
-            // 3. INFRASTRUCTURE (Static Critical Nodes)
-            if (activeLayers.infrastructure) {
-                const criticalNodes = [
-                    { name: "MOMBASA FIBER LANDING", coords: [-4.0435, 39.6682] },
-                    { name: "NAIROBI DATA CENTER", coords: [-1.2921, 36.8219] },
-                    { name: "KONZA TECHNOPOLIS", coords: [-1.6961, 37.1852] }
-                ];
-
-                criticalNodes.forEach(node => {
-                    const icon = L.divIcon({
-                        html: `<div style="border: 1px solid #1a56db; background: rgba(26, 86, 219, 0.3); width: 20px; height: 20px; transform: rotate(45deg);"></div>`,
-                        iconSize: [20, 20],
-                        iconAnchor: [10, 10]
-                    });
-                    L.marker(node.coords as [number, number], { icon })
-                        .bindTooltip(node.name, {
-                            permanent: true,
-                            direction: 'top',
-                            className: 'bg-black text-blue-500 text-[9px] border border-blue-900 px-1'
-                        })
-                        .addTo(map);
-                });
-            }
-
+            const layerGroup = L.layerGroup().addTo(map);
+            layerGroupRef.current = layerGroup;
             mapInstanceRef.current = map;
         };
 
-        initMap();
+        setTimeout(initMap, 500);
 
-        return () => {
-            if (mapInstanceRef.current) {
-                mapInstanceRef.current.remove();
-                mapInstanceRef.current = null;
-            }
-        };
+    }, []);
+
+    // 2. Draw Layers Dynamically
+    useEffect(() => {
+        if (!mapInstanceRef.current || !layerGroupRef.current) return;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const L = (window as any).L;
+        const layerGroup = layerGroupRef.current;
+
+        layerGroup.clearLayers();
+
+        if (activeLayers.threats) {
+            const heatPoints = incidents.map(incident => {
+                let intensity = 0.4;
+                if (incident.threatLevel === 'CRITICAL') intensity = 1.0;
+                else if (incident.threatLevel === 'HIGH') intensity = 0.8;
+                else if (incident.threatLevel === 'MEDIUM') intensity = 0.6;
+                return [incident.location.coordinates[0], incident.location.coordinates[1], intensity];
+            });
+
+            L.heatLayer(heatPoints as [number, number, number][], {
+                radius: 35, blur: 25, maxZoom: 10, max: 1.0,
+                gradient: { 0.4: '#eab308', 0.7: '#f97316', 1.0: '#ef4444' }
+            }).addTo(layerGroup);
+
+            incidents.forEach((incident) => {
+                const isNeutralized = neutralizedIds.has(incident.id);
+                if (!isNeutralized && incident.threatLevel !== 'CRITICAL') return;
+                let color = '#ff0000';
+                let className = 'pulsing-beacon';
+                if (isNeutralized) { color = '#3b82f6'; className = 'shield-wave'; }
+                const iconHtml = isNeutralized ? `<div style="width: 100%; height: 100%;"></div>` : `<div class="marker-pin" style="background-color: ${color}; box-shadow: 0 0 10px ${color}; border-color: #fff;"></div>`;
+                const icon = L.divIcon({ className, html: iconHtml, iconSize: isNeutralized ? [20, 20] : [12, 12], iconAnchor: isNeutralized ? [10, 10] : [6, 6] });
+                L.marker(incident.location.coordinates, { icon }).bindPopup(`<div class="bg-black text-green-500 font-mono text-xs p-2 border border-green-900"><div class="font-bold border-b border-green-800 mb-1">${incident.id}</div><div class="text-white">${incident.type}</div><div class="text-[10px] text-gray-400 mt-1">STATUS: ${isNeutralized ? 'NEUTRALIZING...' : incident.status}</div></div>`).addTo(layerGroup);
+            });
+        }
+
+        if (activeLayers.surveillance) {
+            surveillance.filter(s => s.status === 'ACTIVE' || s.status === 'ALERT').slice(0, 30).forEach((feed) => {
+                const isAlert = feed.status === 'ALERT';
+                const color = isAlert ? '#00ffff' : '#005500';
+                const size = isAlert ? 8 : 4;
+                const icon = L.divIcon({ className: isAlert ? 'pulsing-beacon' : '', html: `<div style="width: ${size}px; height: ${size}px; background-color: ${color}; border-radius: 50%;"></div>`, iconSize: [size, size], iconAnchor: [size / 2, size / 2] });
+                L.marker(feed.coordinates, { icon }).addTo(layerGroup);
+            });
+        }
+
+        if (activeLayers.infrastructure) {
+            const criticalNodes = [
+                { name: "MOMBASA FIBER LANDING", coords: [-4.0435, 39.6682] },
+                { name: "NAIROBI DATA CENTER", coords: [-1.2921, 36.8219] },
+                { name: "KONZA TECHNOPOLIS", coords: [-1.6961, 37.1852] }
+            ];
+            criticalNodes.forEach(node => {
+                const icon = L.divIcon({ html: `<div style="border: 1px solid #1a56db; background: rgba(26, 86, 219, 0.3); width: 20px; height: 20px; transform: rotate(45deg);"></div>`, iconSize: [20, 20], iconAnchor: [10, 10] });
+                L.marker(node.coords as [number, number], { icon }).bindTooltip(node.name, { permanent: true, direction: 'top', className: 'bg-black text-blue-500 text-[9px] border border-blue-900 px-1' }).addTo(layerGroup);
+            });
+        }
     }, [incidents, predictions, surveillance, activeLayers, neutralizedIds]);
 
     return (
