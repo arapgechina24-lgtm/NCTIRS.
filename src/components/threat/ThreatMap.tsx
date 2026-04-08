@@ -22,7 +22,6 @@ export function ThreatMap({ incidents, predictions, surveillance }: ThreatMapPro
     // Dynamic import of Leaflet to avoid SSR issues
     const initMap = async () => {
       const L = (await import('leaflet')).default;
-      // @ts-expect-error - Leaflet CSS import issue
       await import('leaflet/dist/leaflet.css');
 
       if (mapInstanceRef.current) {

@@ -60,7 +60,6 @@ export function LiveThreatMap({ incidents, predictions, surveillance }: LiveThre
             if (typeof window !== 'undefined') {
                 (window as unknown as Record<string, unknown>).L = L;
             }
-            // @ts-expect-error - Leaflet CSS dynamic import has no type declarations
             await import('leaflet/dist/leaflet.css');
             // No types needed for runtime injection
             await import('leaflet.heat');

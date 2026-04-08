@@ -22,7 +22,6 @@ const CNIHeatmap: React.FC = () => {
 
         const initMap = async () => {
             const L = (await import('leaflet')).default;
-            // @ts-expect-error - Leaflet CSS import issue
             await import('leaflet/dist/leaflet.css');
 
             if (mapInstanceRef.current) {
