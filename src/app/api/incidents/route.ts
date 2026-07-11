@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 import { createHash } from 'crypto'
 import { executeSOARPlaybook } from '@/lib/soar-engine'
+import { clampLimit, clampOffset } from '@/lib/http'
 
 // GET /api/incidents - List all incidents
 export async function GET(request: NextRequest) {
@@ -10,8 +11,8 @@ export async function GET(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams
         const status = searchParams.get('status')
         const severity = searchParams.get('severity')
-        const limit = parseInt(searchParams.get('limit') || '50')
-        const offset = parseInt(searchParams.get('offset') || '0')
+        const limit = clampLimit(searchParams.get('limit'), 50)
+        const offset = clampOffset(searchParams.get('offset'))
 
         const where: Record<string, unknown> = {}
         if (status) where.status = status

@@ -1,16 +1,30 @@
 'use client'
 
+/**
+ * NCTIRS Auth Context
+ * -------------------------------------------------------------------------
+ * Session is held server-side as an httpOnly cookie the browser cannot read.
+ * The client never touches the token; it hydrates identity by calling
+ * `/api/auth/me` and clears it via `/api/auth/logout`. This removes the
+ * localStorage token (XSS-exfiltration risk) entirely.
+ */
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
-import { login as apiLogin, register as apiRegister, User, LoginCredentials } from '@/lib/api'
+import {
+    login as apiLogin,
+    register as apiRegister,
+    me as apiMe,
+    logout as apiLogout,
+    User,
+    LoginCredentials,
+} from '@/lib/api'
 
 interface AuthContextType {
     user: User | null
-    token: string | null
     isAuthenticated: boolean
     isLoading: boolean
     login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>
     register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>
-    logout: () => void
+    logout: () => Promise<void>
 }
 
 interface RegisterData {
@@ -22,79 +36,51 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const STORAGE_KEY = 'nctirs_auth'
-
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null)
-    const [token, setToken] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
-    // Load session from localStorage on mount
+    // Hydrate from the httpOnly session cookie on mount.
     useEffect(() => {
-        const stored = localStorage.getItem(STORAGE_KEY)
-        if (stored) {
-            try {
-                const { user, token } = JSON.parse(stored)
-                // eslint-disable-next-line react-hooks/set-state-in-effect
-                setUser(user)
-                setToken(token)
-            } catch {
-                localStorage.removeItem(STORAGE_KEY)
-            }
-        }
-        setIsLoading(false)
+        let active = true
+        apiMe()
+            .then((res) => { if (active) setUser(res.user) })
+            .catch(() => { if (active) setUser(null) })
+            .finally(() => { if (active) setIsLoading(false) })
+        return () => { active = false }
     }, [])
 
-    // Save session to localStorage
-    const saveSession = useCallback((user: User, token: string) => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ user, token }))
-        setUser(user)
-        setToken(token)
-    }, [])
-
-    // Clear session
-    const clearSession = useCallback(() => {
-        localStorage.removeItem(STORAGE_KEY)
-        setUser(null)
-        setToken(null)
-    }, [])
-
-    // Login function
     const login = useCallback(async (credentials: LoginCredentials) => {
         try {
             const response = await apiLogin(credentials)
-            saveSession(response.user, response.token)
+            setUser(response.user)
             return { success: true }
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Login failed'
             return { success: false, error: message }
         }
-    }, [saveSession])
+    }, [])
 
-    // Register function
     const register = useCallback(async (data: RegisterData) => {
         try {
             await apiRegister(data)
-            // Auto-login after registration
             const loginResult = await apiLogin({ email: data.email, password: data.password })
-            saveSession(loginResult.user, loginResult.token)
+            setUser(loginResult.user)
             return { success: true }
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Registration failed'
             return { success: false, error: message }
         }
-    }, [saveSession])
+    }, [])
 
-    // Logout function
-    const logout = useCallback(() => {
-        clearSession()
-    }, [clearSession])
+    const logout = useCallback(async () => {
+        try { await apiLogout() } finally { setUser(null) }
+    }, [])
 
     return (
         <AuthContext.Provider
             value={{
                 user,
-                token,
                 isAuthenticated: !!user,
                 isLoading,
                 login,
@@ -115,29 +101,20 @@ export function useAuth() {
     return context
 }
 
-// HOC for protected routes
+// HOC for protected routes. Note: this is defense-in-depth UX only — the
+// authoritative gate is middleware.ts on the server.
 export function withAuth<P extends object>(Component: React.ComponentType<P>) {
     return function ProtectedRoute(props: P) {
         const { isAuthenticated, isLoading } = useAuth()
 
-        if (isLoading) {
-            return (
-                <div className="min-h-screen bg-black flex items-center justify-center">
-                    <div className="text-green-500 font-mono animate-pulse">
-                        AUTHENTICATING...
-                    </div>
-                </div>
-            )
-        }
-
-        if (!isAuthenticated) {
-            // Redirect to login
-            if (typeof window !== 'undefined') {
+        useEffect(() => {
+            if (!isLoading && !isAuthenticated && typeof window !== 'undefined') {
                 window.location.href = '/login'
             }
-            return null
-        }
+        }, [isAuthenticated, isLoading])
 
+        if (isLoading) return null
+        if (!isAuthenticated) return null
         return <Component {...props} />
     }
 }

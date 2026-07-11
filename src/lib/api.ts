@@ -18,6 +18,7 @@ async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> 
 
     try {
         const response = await fetch(`${API_BASE}${endpoint}`, {
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
                 ...options?.headers,
@@ -230,7 +231,6 @@ export interface User {
 
 export interface LoginResponse {
     user: User
-    token: string
 }
 
 export async function login(credentials: LoginCredentials): Promise<LoginResponse> {
@@ -250,6 +250,14 @@ export async function register(userData: {
         method: 'POST',
         body: JSON.stringify(userData),
     })
+}
+
+export async function me(): Promise<{ user: User }> {
+    return apiFetch<{ user: User }>('/auth/me')
+}
+
+export async function logout(): Promise<{ success: boolean }> {
+    return apiFetch<{ success: boolean }>('/auth/logout', { method: 'POST' })
 }
 
 // ===== AUDIT API =====

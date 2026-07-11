@@ -7,8 +7,12 @@ export const dynamic = 'force-dynamic'; // Ensure this endpoint is never cached
 export async function GET(req: NextRequest) {
     try {
         // Check for a simple API key in headers (TODO: Implement robust auth)
+        // Fail CLOSED: absence of the shared secret denies access rather than
+        // disabling the guard. The agent bridge is additionally gated to clearance
+        // L3+ by middleware.ts.
         const authHeader = req.headers.get('authorization');
-        if (process.env.OPENCLAW_API_KEY && authHeader !== `Bearer ${process.env.OPENCLAW_API_KEY}`) {
+        const expectedKey = process.env.OPENCLAW_API_KEY;
+        if (!expectedKey || authHeader !== `Bearer ${expectedKey}`) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -54,8 +58,12 @@ export async function GET(req: NextRequest) {
 // POST: OpenClaw reports back (New Incident, Threat Update, or Action Completion)
 export async function POST(req: NextRequest) {
     try {
+        // Fail CLOSED: absence of the shared secret denies access rather than
+        // disabling the guard. The agent bridge is additionally gated to clearance
+        // L3+ by middleware.ts.
         const authHeader = req.headers.get('authorization');
-        if (process.env.OPENCLAW_API_KEY && authHeader !== `Bearer ${process.env.OPENCLAW_API_KEY}`) {
+        const expectedKey = process.env.OPENCLAW_API_KEY;
+        if (!expectedKey || authHeader !== `Bearer ${expectedKey}`) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 

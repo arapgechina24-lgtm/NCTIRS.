@@ -1,6 +1,7 @@
 // Users API Route - GET all users (admin only), GET current user
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
+import { clampLimit, clampOffset } from '@/lib/http'
 
 // Force dynamic rendering since we use request.url
 export const dynamic = 'force-dynamic'
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url)
         const role = searchParams.get('role')
         const agency = searchParams.get('agency')
-        const limit = parseInt(searchParams.get('limit') || '50')
+        const limit = clampLimit(searchParams.get('limit'), 50)
 
         // Build where clause
         const where: Record<string, unknown> = { isActive: true }

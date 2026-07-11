@@ -47,3 +47,8 @@ STACK.md
 # Local database files
 dev.db
 audit-db.json
+
+# Secrets / captured session logs (never commit)
+login.txt
+audit-db.json
+*.session.log
